@@ -25,6 +25,22 @@ namespace BattleToad
     {
         //String
         /// <summary>
+        /// Быстро и безболезнено перевести в int
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="default_value"></param>
+        /// <returns></returns>
+        public static int ToInt(this string text, int default_value = int.MinValue)
+           => Addons.ToInt(text, default_value);
+        /// <summary>
+        /// Быстро и безболезнено перевести в long
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="default_value"></param>
+        /// <returns></returns>
+        public static long ToLong(this string text, long default_value = long.MinValue)
+            => Addons.ToLong(text, default_value);
+        /// <summary>
         /// Перевести кириллицу в транслит
         /// </summary>
         /// <param name="text">строка</param>
@@ -47,6 +63,13 @@ namespace BattleToad
         public static string[] GetWords(this string text)
             => Regex.Split(text, @"[\W+]").Where(x => x != string.Empty).ToArray();
         /// <summary>
+        /// Совпадает ли с регулярым выражением
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <param name="matcher">регулярное выражение</param>
+        /// <returns></returns>
+        public static bool IsRegexMatch(this string text, string matcher) => Regex.IsMatch(text, matcher);
+        /// <summary>
         /// Получить только цифры из строки
         /// </summary>
         /// <param name="text">Строка</param>
@@ -54,14 +77,14 @@ namespace BattleToad
         public static string GetJustNums(this string text)
             => string.Join("", text.Where(x => "0123456789".Contains(x)));
         /// <summary>
-        /// Обрезать строку до определенного количества
-        /// символов, в конце будет установлено многоточие
+        /// Обрезать строку до определенного количества символов
         /// </summary>
         /// <param name="text">Строк</param>
         /// <param name="count">Количество символов</param>
+        /// <param name="end">что поставить в конце, по умолчанию многоточие</param>
         /// <returns></returns>
-        public static string Cut(this string text, int count)
-            => text.Length > count ? text.Substring(0, count) + "..." : text;
+        public static string Cut(this string text, int count, string end = "...")
+            => text.Length > count ? text.Substring(0, count) + end : text;
         /// <summary>
         /// Является ли строка IP-адресом(IPv4)
         /// </summary>
@@ -170,7 +193,14 @@ namespace BattleToad
         /// <returns></returns>
         public static string ToText(this List<string> text, string splitter = "\r\n")
             => string.Join(splitter, text);
-
+        /// <summary>
+        /// Получить только те строки, которые удолетворяют регулярному выражению
+        /// </summary>
+        /// <param name="lines">массив строк</param>
+        /// <param name="filter">регулярное выражение</param>
+        /// <returns></returns>
+        public static string[] FilterRegex(this string[] lines, string filter)
+            => lines.Where(x => Regex.IsMatch(x, filter)).ToArray();
         //Dictionary
         /// <summary>
         /// Перевести в String
@@ -391,6 +421,22 @@ namespace BattleToad
     /// </summary>
     public static class Addons
     {
+        /// <summary>
+        /// Быстро и безболезнено перевести в int
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="default_value"></param>
+        /// <returns></returns>
+        public static int ToInt(string text, int default_value = int.MinValue)
+            => int.TryParse(text, out int x) ? x : default_value;
+        /// <summary>
+        /// Быстро и безболезнено перевести в long
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="default_value"></param>
+        /// <returns></returns>
+        public static long ToLong(string text, long default_value = long.MinValue) 
+            => long.TryParse(text, out long x) ? x : default_value;
         /// <summary>
         /// Вывести переменные класса
         /// </summary>
