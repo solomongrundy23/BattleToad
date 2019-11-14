@@ -61,7 +61,7 @@ namespace BattleToad
         /// <param name="text">Строка</param>
         /// <returns></returns>
         public static string[] GetWords(this string text)
-            => Regex.Split(text, @"[\W+]").Where(x => x != string.Empty).ToArray();
+            => Regex.Split(text, @"[^(\w)|\-)]").Where(x => x != string.Empty).ToArray();
         /// <summary>
         /// Совпадает ли с регулярым выражением
         /// </summary>
@@ -75,7 +75,9 @@ namespace BattleToad
         /// <param name="text">Строка</param>
         /// <returns></returns>
         public static string GetJustNums(this string text)
-            => string.Join("", text.Where(x => "0123456789".Contains(x)));
+            => Regex.Replace(text, @"[^\d]", "");
+        public static string GetJustLetters(this string text)
+            => Regex.Replace(text, @"([^\w])|\d", "");
         /// <summary>
         /// Обрезать строку до определенного количества символов
         /// </summary>
