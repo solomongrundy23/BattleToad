@@ -6,35 +6,73 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NumberTimeShow
+namespace BattleToad
 {
-    public static class GET
+    public class HttpClient
     {
-        private static string BaseURL = @"https://www.kody.su/api/v2.1/search.xml?q={0}&key={1}";
+        private string BaseURL;
+        /// <summary>
+        /// Создать экземпляр HttpClient
+        /// </summary>
+        /// <param name="BaseUrl">Базовый URL</param>
+        HttpClient(string BaseUrl = "")
+        {
+            BaseURL = BaseUrl;
+        }
 
+        public void ChangeBaseUrl(string BaseUrl)
+        {
+            BaseURL = BaseUrl;
+        }
+
+        /// <summary>
+        /// Ответ на запрос от HttpClient
+        /// </summary>
         public class Response
         {
-            internal Response(HttpStatusCode code, string text, string error)
+            /// <summary>
+            /// Создает новый ответ
+            /// </summary>
+            /// <param name="code">Код ответ</param>
+            /// <param name="text">Ответ в строке</param>
+            /// <param name="error">Текст ошибки</param>
+            public Response(HttpStatusCode code, string text, string error)
             {
                 resp_statusCode = code;
                 ResponseString = text;
                 Error = error;
             }
-            internal Response(string error)
+            //Создает новый ответ только с ошибкой
+            public Response(string error)
             {
                 Error = error;
             }
+            /// <summary>
+            /// Код ответа
+            /// </summary>
             public int StatusCode
             {
                 get { return (int)resp_statusCode; }
             }
+            /// <summary>
+            /// Код ответа с расшифровкой
+            /// </summary>
             public string StatusCodeString
             {
                 get { return $"{((int)resp_statusCode).ToString()} {resp_statusCode}"; }
             }
+            /// <summary>
+            /// Текст ошибки запроса
+            /// </summary>
             public readonly string Error;
+            /// <summary>
+            /// Текст ответа
+            /// </summary>
             public readonly string ResponseString;
             private readonly HttpStatusCode resp_statusCode;
+            /// <summary>
+            /// Получить Код, Текст ошибки и Ответ в виде строки, например, для логирования
+            /// </summary>
             public string GetString
             {
                 get
@@ -47,49 +85,51 @@ namespace NumberTimeShow
                 }
             }
         }
-
-        private static CookieContainer mycookies = new CookieContainer();
-
-        public static Response GetData(string number, string apikey)
+        /// <summary>
+        /// Печеньки
+        /// </summary>
+        public CookieContainer mycookies = new CookieContainer();
+        /// <summary>
+        /// Отправить запрос GET
+        /// </summary>
+        /// <param name="url">Адрес</param>
+        /// <returns></returns>
+        public Response Get(string url)
         {
-            return Get(string.Format(BaseURL, number, apikey));
+            return Send("Get", url);
+        }
+        /// <summary>
+        /// Отправить запрос POST
+        /// </summary>
+        /// <param name="url">Адрес</param>
+        /// <returns></returns>
+        public Response Post(string url, string data)
+        {
+            return Send("Post", url, data);
+        }
+        /// <summary>
+        /// Отправить запрос PUT
+        /// </summary>
+        /// <param name="url">Адрес</param>
+        /// <returns></returns>
+        public Response Put(string url, string data)
+        {
+            return Send("Put", url, data);
         }
 
-        private static Response Get(string url)
-        {
-            return Send(Method.GET, url);
-        }
-
-        private static Response Post(string url, string data)
-        {
-            return Send(Method.POST, url, data);
-        }
-
-        private static Response Put(string url, string data)
-        {
-            return Send(Method.PUT, url, data);
-        }
-
-        private enum Method { POST, PUT, GET };
-
-        private static Response Send(Method method, string url, string data = "")
+        private Response Send(string method, string url, string data = null)
         {
             try
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                switch (method)
-                {
-                    case Method.GET: request.Method = "Get"; break;
-                    case Method.POST: request.Method = "Post"; break;
-                    case Method.PUT: request.Method = "Put"; break;
-                }
+                request.Method = method;
                 request.ContentType = "application/json";
                 request.Accept = "application/json";
                 request.Headers.Add("charset", "utf-8");
                 request.UserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36";
                 request.CookieContainer = mycookies;
                 request.Headers.Add("charset", "utf-8");
-                if (method != Method.GET)
+                if (data != null)
                 {
                     byte[] b_data = Encoding.UTF8.GetBytes(data);
                     request.ContentLength = b_data.Length;
