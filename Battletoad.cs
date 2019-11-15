@@ -765,22 +765,24 @@ namespace BattleToad
         }
         private static bool IsNum(char ch) => ch >= '0' && ch <= '9';
     }
-
+    /// <summary>
+    /// Проверка условий
+    /// </summary>
     public static class Check
     {
-        public static bool NotNull<T>(T obj) => obj != null;
-        public static bool Null<T>(T obj) => obj == null;
-        public static bool StringIsNullOrEmpty<T>(string text) => text == null || text == "";
-        public static bool IsZero(int item) =>  item == 0;
-        public static bool IsZero(long item) => item == 0;
-        public static bool IsZero(byte item) => item == 0;
-        public static bool More(int a, int b) => a > b;
-        public static bool More(long a, long b) => a > b;
-        public static bool More(byte a, long b) => a > b;
-        public static bool Less(int a, int b) => a < b;
-        public static bool Less(long a, long b) => a < b;
-        public static bool Less(byte a, long b) => a < b;
-        public static bool StringLengthMore(string a, string b) => a.Length > b.Length;
-        public static bool StringLengthLess(string a, string b) => a.Length < b.Length;
+        public static bool NotNull<T>(this T obj) => obj != null;
+        public static bool Null<T>(this T obj) => obj == null;
+        public static bool StringIsNullOrEmpty(this string text) => text == null || text == "";
+        public static bool IsZero(this int item) =>  item == 0;
+        public static bool IsZero(this long item) => item == 0;
+        public static bool IsZero(this byte item) => item == 0;
+        public static bool More(this int a, int b) => a > b;
+        public static bool More(this long a, long b) => a > b;
+        public static bool More(this byte a, long b) => a > b;
+        public static bool Less(this int a, int b) => a < b;
+        public static bool Less(this long a, long b) => a < b;
+        public static bool Less(this byte a, long b) => a < b;
+        public static bool StringLengthMore(this string a, string b) => a.Length > b.Length;
+        public static bool StringLengthLess(this string a, string b) => a.Length < b.Length;
     }
 }
