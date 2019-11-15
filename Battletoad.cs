@@ -12,14 +12,19 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
+using System.Collections.Concurrent;
+using System.Threading;
 
 namespace BattleToad
 {
-
     /// <summary>
     /// Упрощение доступа к List<string>
     /// </summary>
     public class Strings : List<string> { }
+    /// <summary>
+    /// Цивилизованная многопоточная очередь
+    /// </summary>
+    public class CivilizedQueue : ConcurrentQueue<string> { }
 
     public static class Extensions
     {
@@ -53,7 +58,10 @@ namespace BattleToad
         /// <param name="withEmpty">Пропустить пустые строки</param>
         /// <returns></returns>
         public static string[] GetLines(this string text, bool withEmpty = true)
-            => text.Split(new[] { "\r\n", "\r", "\n" }, withEmpty ? StringSplitOptions.None : StringSplitOptions.RemoveEmptyEntries);
+            => text.Split(
+                new[] { "\r\n", "\r", "\n" },
+                withEmpty ? StringSplitOptions.None : StringSplitOptions.RemoveEmptyEntries
+               );
         /// <summary>
         /// Разбить текст на слова
         /// Любой не буквенный символ - разделитель
@@ -145,7 +153,8 @@ namespace BattleToad
         /// <param name="singleline">считать весь текст единой строкой</param>
         /// <param name="group">вывести группу</param>
         /// <returns></returns>
-        public static List<string> FindByRegex(this string DATA, string TAG, bool registr = false, bool singleline = false, int group = 0)
+        public static List<string> FindByRegex(this string DATA, string TAG, bool registr = false,
+                                               bool singleline = false, int group = 0)
             => Addons.FindByRegex(DATA, TAG, registr, singleline, group);
         /// <summary>
         /// Сравнить со строкой
@@ -269,14 +278,14 @@ namespace BattleToad
         public static T FromXML<T>(this string xml) => XMLHelper.Deserialize<T>(xml);
     }
 
-
     /// <summary>
     /// Класс для логирования
     /// </summary>
     public class Log
     {
         private readonly string FileName;
-
+        private Thread WritterThread;
+        private readonly ConcurrentQueue<string> LogList = new ConcurrentQueue<string>();
         /// <summary>
         /// Создать логирование
         /// </summary>
@@ -284,16 +293,46 @@ namespace BattleToad
         public Log(string LogFile)
         {
             FileName = LogFile;
+            WritterThread = new Thread(Writter)
+            {
+                IsBackground = true
+            };
+            WritterThread.Start();
         }
-        private void WriteLog(string log)
+        ~Log()
         {
-            try
+            if (WritterThread.IsAlive) WritterThread.Abort();
+            while (LogList.Count > 0)
             {
-                File.AppendAllText(FileName, log);
+                if (LogList.TryDequeue(out string log_string))
+                {
+                    try
+                    {
+                        File.AppendAllText(FileName, log_string);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Ошибка логирования - {ex.Message}");
+                    }
+                }
             }
-            catch (Exception ex)
+        }
+        private void WriteLog(string log) => LogList.Enqueue(log);
+        private void Writter()
+        {
+            while (true)
             {
-                throw new Exception($"Ошибка логирования - {ex.Message}");
+                if (LogList.TryDequeue(out string log_string))
+                {
+                    try
+                    {
+                        File.AppendAllText(FileName, log_string);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"Ошибка логирования - {ex.Message}");
+                    }
+                }
             }
         }
         private string LogString(string log)
@@ -489,7 +528,8 @@ namespace BattleToad
         /// <param name="singleline">считать весь текст единой строкой</param>
         /// <param name="group">вывести группу</param>
         /// <returns></returns>
-        public static List<string> FindByRegex(string DATA, string TAG, bool registr = false, bool singleline = false, int group = 0)
+        public static List<string> FindByRegex(string DATA, string TAG, bool registr = false,
+                                               bool singleline = false, int group = 0)
         {
             RegexOptions ro = singleline ? RegexOptions.Singleline : RegexOptions.Multiline;
             ro = !registr ? ro | RegexOptions.IgnoreCase : ro;
@@ -724,5 +764,23 @@ namespace BattleToad
             return string.Join(Environment.NewLine, texts);
         }
         private static bool IsNum(char ch) => ch >= '0' && ch <= '9';
+    }
+
+    public static class Check
+    {
+        public static bool NotNull<T>(T obj) => obj != null;
+        public static bool Null<T>(T obj) => obj == null;
+        public static bool StringIsNullOrEmpty<T>(string text) => text == null || text == "";
+        public static bool IsZero(int item) =>  item == 0;
+        public static bool IsZero(long item) => item == 0;
+        public static bool IsZero(byte item) => item == 0;
+        public static bool More(int a, int b) => a > b;
+        public static bool More(long a, long b) => a > b;
+        public static bool More(byte a, long b) => a > b;
+        public static bool Less(int a, int b) => a < b;
+        public static bool Less(long a, long b) => a < b;
+        public static bool Less(byte a, long b) => a < b;
+        public static bool StringLengthMore(string a, string b) => a.Length > b.Length;
+        public static bool StringLengthLess(string a, string b) => a.Length < b.Length;
     }
 }
