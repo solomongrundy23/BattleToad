@@ -6,12 +6,10 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BattleToad
+namespace FastHttpClient
 {
-    public class HttpClient
+    public class FastHttpClient
     {
-        public string ContentType = "application/text";
-        public string Accept = "";
         public WebHeaderCollection Headers = new WebHeaderCollection();
         private string BaseURL;
         /// <summary>
@@ -95,8 +93,16 @@ namespace BattleToad
         /// Печеньки
         /// </summary>
         public CookieContainer mycookies = new CookieContainer();
-
-        public Response Send(string method, string url, string data = null)
+        /// <summary>
+        /// Отправить HTTP-запрос
+        /// </summary>
+        /// <param name="method">метод</param>
+        /// <param name="url">адрес</param>
+        /// <param name="data">данные</param>
+        /// <returns></returns>
+        public Response Send(string method, string url, 
+            string ContentType = ContentTypes.text.plain, 
+            string Accept = "", string data = null)
         {
             try
             {
@@ -135,7 +141,16 @@ namespace BattleToad
             }
         }
 
-        public async Response SendAsync(string method, string url, string data = null)
+        /// <summary>
+        /// Отправить HTTP-запрос асинхронно
+        /// </summary>
+        /// <param name="method">метод</param>
+        /// <param name="url">адрес</param>
+        /// <param name="data">данные</param>
+        /// <returns></returns>
+        public async Response SendAsync(string method, string url,
+            string ContentType = ContentTypes.text.plain,
+            string Accept = "", string data = null)
         {
             try
             {
@@ -174,6 +189,9 @@ namespace BattleToad
             }
         }
 
+        /// <summary>
+        /// Список Content-Types с Википедии
+        /// </summary>
         public static class ContentTypes
         {
             public static class application

@@ -10,8 +10,6 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Web.Script.Serialization;
-using System.Xml.Serialization;
 using System.Collections.Concurrent;
 using System.Threading;
 
@@ -20,7 +18,74 @@ namespace BattleToad
     /// <summary>
     /// Упрощение доступа к List<string>
     /// </summary>
-    public class Strings : List<string> { }
+    public class Strings : List<string>
+    {
+        /// <summary>
+        /// Создать экземпляр Strings
+        /// </summary>
+        public Strings()
+        {
+        }
+        /// <summary>
+        /// Создать экземпляр Strings, загрузив из файла
+        /// </summary>
+        /// <param name="FileName">Имя файла</param>
+        public Strings(string FileName)
+        {
+            FromFile(FileName);
+        }
+        /// <summary>
+        /// Загрузить из файла
+        /// </summary>
+        /// <param name="FileName">Имя файла</param>
+        /// <param name="EmptyStrings">Добавлять ли пустые строки</param>
+        public void FromFile(string FileName, bool EmptyStrings = true)
+        {
+            try
+            {
+                string[] FileData = File.ReadAllLines(FileName);
+                this.Clear();
+                if (EmptyStrings)
+                    this.AddRange(FileData);
+                else
+                    this.AddRange(FileData.Where(x => x != ""));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка загрузки файла: {ex.Message}");
+            }
+        }
+        /// <summary>
+        /// Сохранить строки в файл
+        /// </summary>
+        /// <param name="FileName">Имя файла</param>
+        public void ToFile(string FileName)
+        {
+            try
+            {
+                File.WriteAllLines(FileName, this);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка сохранения файла: {ex.Message}");
+            }
+        }
+        /// <summary>
+        /// Дописать строки в конец файла
+        /// </summary>
+        /// <param name="FileName">Имя файла</param>
+        public void ToFile_Append(string FileName)
+        {
+            try
+            {
+                File.AppendAllLines(FileName, this);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка сохранения файла: {ex.Message}");
+            }
+        }
+    }
     /// <summary>
     /// Цивилизованная многопоточная очередь
     /// </summary>
@@ -205,6 +270,22 @@ namespace BattleToad
         public static string ToText(this List<string> text, string splitter = "\r\n")
             => string.Join(splitter, text);
         /// <summary>
+        /// Получить только те строки, которые содержат подстроку
+        /// </summary>
+        /// <param name="lines">массив строк</param>
+        /// <param name="filter">подстрока</param>
+        /// <returns></returns>
+        public static string[] FilterContains(this string[] lines, string filter)
+            => lines.Where(x => Regex.IsMatch(x, filter)).ToArray();
+        /// <summary>
+        /// Получить только те строки, которые содержат подстроку
+        /// </summary>
+        /// <param name="lines">список строк</param>
+        /// <param name="filter">подстрока</param>
+        /// <returns></returns>
+        public static string[] FilterContains(this List<string> lines, string filter)
+            => lines.Where(x => Regex.IsMatch(x, filter)).ToArray();
+        /// <summary>
         /// Получить только те строки, которые удолетворяют регулярному выражению
         /// </summary>
         /// <param name="lines">массив строк</param>
@@ -212,12 +293,20 @@ namespace BattleToad
         /// <returns></returns>
         public static string[] FilterRegex(this string[] lines, string filter)
             => lines.Where(x => Regex.IsMatch(x, filter)).ToArray();
+        /// <summary>
+        /// Получить только те строки, которые удолетворяют регулярному выражению
+        /// </summary>
+        /// <param name="lines">список строк</param>
+        /// <param name="filter">регулярное выражение</param>
+        /// <returns></returns>
+        public static string[] FilterRegex(this List<string> lines, string filter)
+            => lines.Where(x => Regex.IsMatch(x, filter)).ToArray();
         //Dictionary
         /// <summary>
         /// Перевести в String
         /// </summary>
         /// <param name="dictionary">словарь</param>
-        /// <param name="KeyValueSplitter">символ для стыковки</param>
+        /// <param name="KeyValueSplitter">символ(ы) для стыковки</param>
         /// <returns></returns>
         public static string ToText<K, V>(this Dictionary<K, V> dictionary, string KeyValueSplitter = "\t")
             => string.Join(Environment.NewLine, dictionary.Select(x => $"{x.Key}{KeyValueSplitter}{x.Value}").ToArray());
@@ -248,34 +337,6 @@ namespace BattleToad
         /// <returns></returns>
         public static string[] PrintClassValues<T>(this T obj, bool ShowPrivate = false, bool ShowTypes = false)
             => Addons.PrintValuesInClass<T>(obj, ShowPrivate, ShowTypes);
-        //JSON и XML
-        /// <summary>
-        /// Перевести в JSON
-        /// </summary>>
-        /// <param name="obj">класс</param>
-        /// <returns></returns>
-        public static string ToJson<T>(this T obj) => JSONHelper.Serialize(obj);
-        /// <summary>
-        /// Перевести в XML
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static string ToXML<T>(this T obj) => XMLHelper.Serialize(obj);
-        /// <summary>
-        /// В класс из JSON
-        /// </summary>
-        /// <typeparam name="T">класс</typeparam>
-        /// <param name="json">JSON</param>
-        /// <returns></returns>
-        public static T FromJson<T>(this string json) => JSONHelper.Deserialize<T>(json);
-        /// <summary>
-        /// В класс из XML
-        /// </summary>
-        /// <typeparam name="T">класс</typeparam>
-        /// <param name="xml">XML</param>
-        /// <returns></returns>
-        public static T FromXML<T>(this string xml) => XMLHelper.Deserialize<T>(xml);
     }
 
     /// <summary>
@@ -569,71 +630,6 @@ namespace BattleToad
             }
             else
                 return null;
-        }
-    }
-
-    /// <summary>
-    /// Помощник для работы с XML
-    /// </summary>
-    internal static class XMLHelper
-    {
-        /// <summary>
-        /// Класс в XML
-        /// </summary>
-        /// <typeparam name="T">класс</typeparam>
-        /// <param name="obj">объект</param>
-        /// <returns></returns>
-        public static string Serialize<T>(T obj)
-        {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
-            using (StringWriter textWriter = new StringWriter())
-            {
-                xmlSerializer.Serialize(textWriter, obj);
-                return textWriter.ToString();
-            }
-        }
-        /// <summary>
-        /// Из XML в класс
-        /// </summary>
-        /// <typeparam name="T">класс</typeparam>
-        /// <param name="xml"></param>
-        /// <returns></returns>
-        public static T Deserialize<T>(string xml)
-        {
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
-            using (StringReader textReader = new StringReader(xml))
-            {
-                return (T)xmlSerializer.Deserialize(textReader);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Помощник для работы с JSON
-    /// </summary>
-    internal static class JSONHelper
-    {
-        /// <summary>
-        /// Класс в JSON
-        /// </summary>
-        /// <typeparam name="T">класс</typeparam>
-        /// <param name="obj">объект</param>
-        /// <returns></returns>
-        public static string Serialize<T>(T obj)
-        {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            return serializer.Serialize(obj);
-        }
-        /// <summary>
-        /// Из JSON в класс
-        /// </summary>
-        /// <typeparam name="T">класс</typeparam>
-        /// <param name="json">JSON</param>
-        /// <returns></returns>
-        public static T Deserialize<T>(string json)
-        {
-            JavaScriptSerializer serializer = new JavaScriptSerializer();
-            return serializer.Deserialize<T>(json);
         }
     }
 
