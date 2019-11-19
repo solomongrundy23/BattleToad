@@ -804,15 +804,75 @@ namespace BattleToad
         /// <param name="number"></param>
         /// <returns>True, если переменная равна 0</returns>
         public static bool IsZero(this byte number) => number == 0;
+        /// <summary>
+        /// Больше
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool More(this int a, int b) => a > b;
+        /// <summary>
+        /// Больше
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool More(this long a, long b) => a > b;
+        /// <summary>
+        /// Больше
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool More(this byte a, long b) => a > b;
+        /// <summary>
+        /// Меньше
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool Less(this int a, int b) => a < b;
+        /// <summary>
+        /// Меньше
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool Less(this long a, long b) => a < b;
+        /// <summary>
+        /// Меньше
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool Less(this byte a, long b) => a < b;
+        /// <summary>
+        /// Длиннее
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool StringLengthMore(this string a, int b) => a.Length > b;
+        /// <summary>
+        /// Короче
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool StringLengthLess(this string a, int b) => a.Length < b;
+        /// <summary>
+        /// Длиннее, чем строка
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool StringLengthMore(this string a, string b) => a.Length > b.Length;
+        /// <summary>
+        /// Короче, чем строка
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
         public static bool StringLengthLess(this string a, string b) => a.Length < b.Length;
         /// <summary>
         /// Возвращает True, если число не четное
