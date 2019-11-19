@@ -766,19 +766,65 @@ namespace BattleToad
     /// </summary>
     public static class Check
     {
+        /// <summary>
+        /// Возвращает значение True, если переменная имеет значение, отличное от Null
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns>Еrue, если переменная имеет значение, отличное от Null</returns>
         public static bool NotNull<T>(this T obj) => obj != null;
+        /// <summary>
+        /// Возвращает значение True, если переменная имеет значение, равное Null
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns>true, если переменная имеет значение, равное Null</returns>
         public static bool Null<T>(this T obj) => obj == null;
+        /// <summary>
+        /// Возвращает True, если строка пустая или Null
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns>True, если строка пустая или Null</returns>
         public static bool StringIsNullOrEmpty(this string text) => text == null || text == "";
-        public static bool IsZero(this int item) =>  item == 0;
-        public static bool IsZero(this long item) => item == 0;
-        public static bool IsZero(this byte item) => item == 0;
+        /// <summary>
+        /// Возвращает True, если переменная равна 0
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns>True, если переменная равна 0</returns>
+        public static bool IsZero(this int number) => number == 0;
+        /// <summary>
+        /// Возвращает True, если переменная равна 0
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns>True, если переменная равна 0</returns>
+        public static bool IsZero(this long number) => number == 0;
+        /// <summary>
+        /// Возвращает True, если переменная равна 0
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns>True, если переменная равна 0</returns>
+        public static bool IsZero(this byte number) => number == 0;
         public static bool More(this int a, int b) => a > b;
         public static bool More(this long a, long b) => a > b;
         public static bool More(this byte a, long b) => a > b;
         public static bool Less(this int a, int b) => a < b;
         public static bool Less(this long a, long b) => a < b;
         public static bool Less(this byte a, long b) => a < b;
+        public static bool StringLengthMore(this string a, int b) => a.Length > b;
+        public static bool StringLengthLess(this string a, int b) => a.Length < b;
         public static bool StringLengthMore(this string a, string b) => a.Length > b.Length;
         public static bool StringLengthLess(this string a, string b) => a.Length < b.Length;
+        /// <summary>
+        /// Возвращает True, если число не четное
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns>number % 2 == 1</returns>
+        public static bool IsOdd(this int number) => number % 2 == 1;
+        /// <summary>
+        /// Возвращает True, если число четное
+        /// </summary>
+        /// <param name="number"></param>
+        /// <returns>number % 2 == 0</returns>
+        public static bool IsEven(this int number) => number % 2 == 0;
     }
 }
