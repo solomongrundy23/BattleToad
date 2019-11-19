@@ -5,20 +5,10 @@ using System;
 
 public static class EncryptionHelper
 {
-    public static string Encrypt(this string text, string password) => Encrypting(text, password);
-    public static string Decrypt(this string text, string password) => Decrypting(text, password);
-
-    private static string Encrypting(string text, string password)
-        => Convert.ToBase64String(Crypta(Encoding.Unicode.GetBytes(text), password, false));
-    private static string Decrypting(string text, string password)
-        => Encoding.Unicode.GetString(Crypta(Convert.FromBase64String(text), password, true));
-
-    private static byte[] Crypta(byte[] cipherBytes, string password, bool decrypt)
-    {
-        byte[] result;
-        using (Aes encryptor = Aes.Create())
-        {
-            using (Rfc2898DeriveBytes derivebytes = new Rfc2898DeriveBytes(password,
+    /// <summary>
+    /// Cоль
+    /// </summary>
+    public static byte[] Salt =
                 new byte[] {
                     0x23,
                     0x87,
@@ -33,8 +23,51 @@ public static class EncryptionHelper
                     0x66,
                     0x11,
                     0xaf
-                }
-                ))
+                };
+    /// <summary>
+    /// Зашифровать строку
+    /// </summary>
+    /// <param name="text">Строка</param>
+    /// <param name="password">Пароль для шифрования</param>
+    /// <returns>Зашифрованная строка</returns>
+    public static string Encrypt(this string text, string password) => Encrypting(text, password);
+    /// <summary>
+    /// Разшифровать строку
+    /// </summary>
+    /// <param name="text">Строка</param>
+    /// <param name="password">Пароль для шифрования</param>
+    /// <returns>Строка</returns>
+    public static string Decrypt(this string text, string password) => Decrypting(text, password);
+    /// <summary>
+    /// Зашифровать строку
+    /// </summary>
+    /// <param name="text">Строка</param>
+    /// <param name="password">Пароль для шифрования</param>
+    /// <returns>Зашифрованная строка</returns>
+    public static string Encrypting(string text, string password)
+        => Convert.ToBase64String(Crypta(Encoding.Unicode.GetBytes(text), password, false));
+    /// <summary>
+    /// Разшифровать строку
+    /// </summary>
+    /// <param name="text">Строка</param>
+    /// <param name="password">Пароль для шифрования</param>
+    /// <returns>Строка</returns>
+    public static string Decrypting(string text, string password)
+        => Encoding.Unicode.GetString(Crypta(Convert.FromBase64String(text), password, true));
+
+    /// <summary>
+    /// Зашифровать или разшифровать массив байт
+    /// </summary>
+    /// <param name="cipherBytes">байты</param>
+    /// <param name="password">пароль</param>
+    /// <param name="decrypt">режим расшифровки, False - зашифровать, True - разшифровать</param>
+    /// <returns></returns>
+    public static byte[] Crypta(byte[] cipherBytes, string password, bool decrypt)
+    {
+        byte[] result;
+        using (Aes encryptor = Aes.Create())
+        {
+            using (Rfc2898DeriveBytes derivebytes = new Rfc2898DeriveBytes(password, Salt))
             {
                 encryptor.Key = derivebytes.GetBytes(32);
                 encryptor.IV = derivebytes.GetBytes(16);
