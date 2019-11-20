@@ -32,7 +32,7 @@ public static class EncryptionHelper
     /// <returns>Зашифрованная строка</returns>
     public static string Encrypt(this string text, string password) => Encrypting(text, password);
     /// <summary>
-    /// Разшифровать строку
+    /// раcшифровать строку
     /// </summary>
     /// <param name="text">Строка</param>
     /// <param name="password">Пароль для шифрования</param>
@@ -47,7 +47,7 @@ public static class EncryptionHelper
     public static string Encrypting(string text, string password)
         => Convert.ToBase64String(Crypta(Encoding.Unicode.GetBytes(text), password, false));
     /// <summary>
-    /// Разшифровать строку
+    /// раcшифровать строку
     /// </summary>
     /// <param name="text">Строка</param>
     /// <param name="password">Пароль для шифрования</param>
@@ -56,12 +56,12 @@ public static class EncryptionHelper
         => Encoding.Unicode.GetString(Crypta(Convert.FromBase64String(text), password, true));
 
     /// <summary>
-    /// Зашифровать или разшифровать массив байт
+    /// Зашифровать или раcшифровать массив байт
     /// </summary>
     /// <param name="cipherBytes">байты</param>
     /// <param name="password">пароль</param>
-    /// <param name="decrypt">режим расшифровки, False - зашифровать, True - разшифровать</param>
-    /// <returns></returns>
+    /// <param name="decrypt">режим расшифровки, False - зашифровать, True - раcшифровать</param>
+    /// <returns>Массив байт</returns>
     public static byte[] Crypta(byte[] cipherBytes, string password, bool decrypt)
     {
         byte[] result;
