@@ -2,8 +2,10 @@
 using System.Text;
 using System.Security.Cryptography;
 using System;
+using XMLHelper;
+using System.Threading.Tasks;
 
-public static class EncryptionHelper
+public static class AesHelper
 {
     /// <summary>
     /// Cоль
@@ -89,5 +91,146 @@ public static class EncryptionHelper
             }
         }
         return result;
+    }
+}
+/// <summary>
+/// Класс-помощник для работы с шифрованием RSA
+/// </summary>
+public class RSAHelper: IDisposable
+{
+    /// <summary>
+    /// Пресеты размера ключа
+    /// </summary>
+    public static class RSA_KEY_LENGTH {
+        public const int RSA128 = 128;
+        public const int RSA256 = 256;
+        public const int RSA512 = 512;
+        public const int RSA1024 = 1024;
+        public const int RSA2048 = 2048;
+        public const int RSA4096 = 4096;
+        public const int RSA8192 = 8192;
+    }
+    private readonly RSACryptoServiceProvider RSA;
+    private RSAParameters Key_Private;
+    private RSAParameters Key_Public;
+    /// <summary>
+    /// Приватный ключ
+    /// </summary>
+    public string PrivateKey
+    {
+        set => Key_Private = value.FromXML<RSAParameters>();
+        get => Key_Private.ToXML();
+    }
+    /// <summary>
+    /// Публичный ключ
+    /// </summary>
+    public string PublicKey
+    {
+        set => Key_Public = value.FromXML<RSAParameters>();
+        get => Key_Public.ToXML();
+    }
+    /// <summary>
+    /// Создать экземпляр класса RSAHelper
+    /// </summary>
+    /// <param name="KeySize">размер ключа</param>
+    public RSAHelper(int KeySize = 512)
+    {
+        RSA = new RSACryptoServiceProvider(KeySize);
+        Key_Private = RSA.ExportParameters(true);
+        Key_Public = RSA.ExportParameters(false);
+    }
+    /// <summary>
+    /// Создать экземпляр класса RSAHelper, сразу указав приватный
+    /// </summary>
+    /// <param name="keySize">размер ключа</param>
+    /// <param name="privateKey">приватный ключ</param>
+    public RSAHelper(int keySize, string privateKey)
+    {
+        RSA = new RSACryptoServiceProvider(keySize);
+        PrivateKey = privateKey;
+        Key_Public = RSA.ExportParameters(false);
+    }
+    private bool disposed = false;
+    /// <summary>
+    /// Убить экземплер класса, а что он тебе сделал?
+    /// </summary>
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposed)
+        {
+            if (disposing)
+            {
+                RSA.Dispose();
+            }
+            disposed = true;
+        }
+    }
+    ~RSAHelper()
+    {
+        Dispose(false);
+    }
+
+    /// <summary>
+    /// Зашифровать строку
+    /// </summary>
+    /// <param name="DataToEncrypt">строка</param>
+    /// <returns>зашифрованная строка</returns>
+    public string Encrypt(string DataToEncrypt) =>
+        Convert.ToBase64String(Encrypt(Encoding.Unicode.GetBytes(DataToEncrypt), Key_Public));
+    /// <summary>
+    /// Расшифровать строку
+    /// </summary>
+    /// <param name="DataToEncrypt">шифрованная строка</param>
+    /// <returns>расшифрованная строка</returns>
+    public string Decrypt(string DataToEncrypt) =>
+    Encoding.Unicode.GetString(Decrypt(Convert.FromBase64String(DataToEncrypt), Key_Private));
+
+    public byte[] Encrypt(byte[] DataToEncrypt, RSAParameters RSAKeyInfo, 
+                              bool DoOAEPPadding = false)
+    {
+        RSA.ImportParameters(RSAKeyInfo);
+        return RSA.Encrypt(DataToEncrypt, DoOAEPPadding);
+    }
+
+    public byte[] Decrypt(byte[] DataToDecrypt, RSAParameters RSAKeyInfo, 
+                              bool DoOAEPPadding = false)
+    {
+        RSA.ImportParameters(RSAKeyInfo);
+        return RSA.Decrypt(DataToDecrypt, DoOAEPPadding);
+    }
+    /// <summary>
+    /// Зашифровать строку асинхронно
+    /// </summary>
+    /// <param name="DataToEncrypt">строка</param>
+    /// <returns>зашифрованная строка</returns>
+    public async Task<string> EncryptAsync(string DataToEncrypt) =>
+        Convert.ToBase64String(
+            await EncryptAsync(Encoding.Unicode.GetBytes(DataToEncrypt), Key_Public)
+            );
+    /// <summary>
+    /// Расшифровать строку асинхронно
+    /// </summary>
+    /// <param name="DataToEncrypt">шифрованная строка</param>
+    /// <returns>расшифрованная строка</returns>
+    public async Task<string> DecryptAsync(string DataToEncrypt) =>
+        Encoding.Unicode.GetString(
+            await DecryptAsync(Convert.FromBase64String(DataToEncrypt), Key_Private)
+            );
+
+    public async Task<byte[]> EncryptAsync(byte[] DataToEncrypt, RSAParameters RSAKeyInfo,
+                                           bool DoOAEPPadding = false)
+    {
+        return await Task.Run(() => Encrypt(DataToEncrypt, RSAKeyInfo, DoOAEPPadding));
+    }
+
+    public async Task<byte[]> DecryptAsync(byte[] DataToEncrypt, RSAParameters RSAKeyInfo,
+                                           bool DoOAEPPadding = false)
+    {
+        return await Task.Run(() => Decrypt(DataToEncrypt, RSAKeyInfo, DoOAEPPadding));
     }
 }
