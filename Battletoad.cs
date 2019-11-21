@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace BattleToad
+namespace BattleToad.Ext
 {
     /// <summary>
     /// Упрощение доступа к List<string>
@@ -337,30 +337,36 @@ namespace BattleToad
         /// <returns></returns>
         public static string[] PrintClassValues<T>(this T obj, bool ShowPrivate = false, bool ShowTypes = false)
             => Addons.PrintValuesInClass<T>(obj, ShowPrivate, ShowTypes);
+        /// <summary>
+        /// Записать данные класса в лог(класс Log)
+        /// </summary>
+        /// <typeparam name="T">тип</typeparam>
+        /// <param name="obj">объект</param>
+        /// <param name="log">экземпляр класса Log</param>
+        /// <param name="title">название записи</param>
+        /// <param name="private_data">отображать приватные данные</param>
+        /// <param name="data_type">отображать тип данных</param>
+        public static void LogClass<T>(this T obj, Log log, string title = "", bool private_data = false, bool data_type = false)
+        {
+            log.WriteClass(obj, title, private_data, data_type);
+        }
     }
 
     /// <summary>
     /// Класс для логирования
     /// </summary>
-    public class Log
+    public class Log:IDisposable
     {
-        private readonly string FileName;
-        private Thread WritterThread;
-        private readonly ConcurrentQueue<string> LogList = new ConcurrentQueue<string>();
+        private bool disposed = false;
         /// <summary>
-        /// Создать логирование
+        /// Убить экземпляр класса, а что он тебе сделал?
         /// </summary>
-        /// <param name="LogFile">путь к файлу лога</param>
-        public Log(string LogFile)
+        public void Dispose()
         {
-            FileName = LogFile;
-            WritterThread = new Thread(Writter)
-            {
-                IsBackground = true
-            };
-            WritterThread.Start();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
-        ~Log()
+        protected virtual void Dispose(bool disposing)
         {
             if (WritterThread.IsAlive) WritterThread.Abort();
             while (LogList.Count > 0)
@@ -377,6 +383,34 @@ namespace BattleToad
                     }
                 }
             }
+            if (!disposed)
+            {
+                if (disposing)
+                {
+                    WritterThread.Abort();
+                }
+                disposed = true;
+            }
+        }
+        ~Log()
+        {
+            Dispose(false);
+        }
+        private readonly string FileName;
+        private Thread WritterThread;
+        private readonly ConcurrentQueue<string> LogList = new ConcurrentQueue<string>();
+        /// <summary>
+        /// Создать логирование
+        /// </summary>
+        /// <param name="LogFile">путь к файлу лога</param>
+        public Log(string LogFile)
+        {
+            FileName = LogFile;
+            WritterThread = new Thread(Writter)
+            {
+                IsBackground = true
+            };
+            WritterThread.Start();
         }
         private void WriteLog(string log) => LogList.Enqueue(log);
         private void Writter()
@@ -396,13 +430,14 @@ namespace BattleToad
                 }
             }
         }
-        private string LogString(string log)
-            => $"{Addons.GetNow()}:{Environment.NewLine}{log}{Environment.NewLine}{Environment.NewLine}";
+        private string LogString(string log, string title = "")
+            => $"{Addons.GetNow()}: {title}{Environment.NewLine}{log}{Environment.NewLine}{Environment.NewLine}";
         /// <summary>
         /// Записать строку в лог
         /// </summary>
         /// <param name="log">данные для лога</param>
-        public void Write(string log)
+        ///<param name="title">название записи для лога</param>
+        public void Write(string log, string title = "")
         {
             WriteLog(LogString(log));
         }
@@ -410,15 +445,17 @@ namespace BattleToad
         /// Записать массив строк в лог
         /// </summary>
         /// <param name="log">массив данных для лога</param>
-        public void Write(string[] log)
+        ///<param name="title">название записи для лога</param>
+        public void Write(string[] log, string title = "")
         {
-            Write(log.ToText());
+            Write(log.ToText(), title);
         }
         /// <summary>
         /// Записать список строк в лог
         /// </summary>
         /// <param name="log">список данных для лога</param>
-        public void Write(List<string> log)
+        ///<param name="title">название записи для лога</param>
+        public void Write(List<string> log, string title = "")
         {
             Write(log.ToText());
         }
@@ -427,9 +464,9 @@ namespace BattleToad
         /// </summary>
         /// <typeparam name="T">класс</typeparam>
         /// <param name="obj">объект</param>
-        public void WriteClass<T>(T obj)
+        public void WriteClass<T>(T obj, string title = "", bool private_data = false, bool data_type = false)
         {
-            obj.PrintClassValues(true, true);
+            Write(obj.PrintClassValues(private_data, data_type).ToText(), title);
         }
     }
 
@@ -548,16 +585,32 @@ namespace BattleToad
         /// <returns></returns>
         public static string[] PrintValuesInClass<T>(T obj, bool ShowPrivate = false, bool ShowTypes = false)
         {
+            List<string> result = new List<string>();
             BindingFlags flags = ShowPrivate ?
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
                 :
                 BindingFlags.Public | BindingFlags.Instance;
-            FieldInfo[] fi = obj.GetType().GetFields(flags);
-            string[] result = ShowTypes ?
-               fi.Select(x => $"{x.Name}=\"{x.GetValue(obj)}\"").ToArray()
-               :
-               fi.Select(x => $"{x.FieldType}: {x.Name}=\"{x.GetValue(obj)}\"").ToArray();
-            return result;
+            try
+            {
+                PropertyInfo[] pi = obj.GetType().GetProperties(flags);
+                string[] properties = ShowTypes ?
+                   pi.Select(x => $"{x.PropertyType.Name}: {x.Name}=\"{x.GetValue(obj)}\"").ToArray()
+                   :
+                   pi.Select(x => $"{x.Name}=\"{x.GetValue(obj)}\"").ToArray();
+                result.AddRange(properties);
+            }
+            catch { }
+            try
+            {
+                FieldInfo[] fi = obj.GetType().GetFields(flags);
+                string[] fields = ShowTypes ?
+                   fi.Select(x => $"{x.FieldType.Name}: {x.Name}=\"{x.GetValue(obj)}\"").ToArray()
+                   :
+                   fi.Select(x => $"{x.Name}=\"{x.GetValue(obj)}\"").ToArray();
+                result.AddRange(fields);
+            }
+            catch { }
+            return result.ToArray();
         }
         /// <summary>
         /// Запущена ли программа от Администратора
@@ -781,11 +834,17 @@ namespace BattleToad
         /// <returns>true, если переменная имеет значение, равное Null</returns>
         public static bool Null<T>(this T obj) => obj == null;
         /// <summary>
-        /// Возвращает True, если строка пустая или Null
+        /// Возвращает True, если строка пустая
         /// </summary>
         /// <param name="text"></param>
         /// <returns>True, если строка пустая или Null</returns>
-        public static bool StringIsNullOrEmpty(this string text) => text == null || text == "";
+        public static bool IsEmpty(this string text) => text == "";
+        /// <summary>
+        /// Возвращает True, если строка не пустая
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns>True, если строка пустая или Null</returns>
+        public static bool IsNotEmpty(this string text) => text != "";
         /// <summary>
         /// Возвращает True, если переменная равна 0
         /// </summary>

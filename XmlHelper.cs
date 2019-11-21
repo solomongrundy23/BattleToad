@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
 
-namespace XMLHelper
+namespace BattleToad.XMLHelper
 {
     /// <summary>
     /// Помощник для работы с XML

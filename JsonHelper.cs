@@ -1,11 +1,11 @@
 ﻿using System.Web.Script.Serialization;
 
-namespace JSONHelper
+namespace BattleToad.JSONHelper
 {
     /// <summary>
     /// Помощник для работы с JSON
     /// </summary>
-    internal static class JSONHelper
+    public static class JSONHelper
     {
         /// <summary>
         /// Перевести в JSON

@@ -1,9 +1,9 @@
-﻿using System.IO;
-using System.Text;
+﻿using BattleToad.XMLHelper;
+using System.IO;
 using System.Security.Cryptography;
-using System;
-using XMLHelper;
+using System.Text;
 using System.Threading.Tasks;
+using System;
 
 public static class AesHelper
 {
@@ -152,7 +152,7 @@ public class RSAHelper: IDisposable
     }
     private bool disposed = false;
     /// <summary>
-    /// Убить экземплер класса, а что он тебе сделал?
+    /// Убить экземпляр класса, а что он тебе сделал?
     /// </summary>
     public void Dispose()
     {
@@ -224,13 +224,9 @@ public class RSAHelper: IDisposable
 
     public async Task<byte[]> EncryptAsync(byte[] DataToEncrypt, RSAParameters RSAKeyInfo,
                                            bool DoOAEPPadding = false)
-    {
-        return await Task.Run(() => Encrypt(DataToEncrypt, RSAKeyInfo, DoOAEPPadding));
-    }
+        => await Task.Run(() => Encrypt(DataToEncrypt, RSAKeyInfo, DoOAEPPadding));
 
     public async Task<byte[]> DecryptAsync(byte[] DataToEncrypt, RSAParameters RSAKeyInfo,
                                            bool DoOAEPPadding = false)
-    {
-        return await Task.Run(() => Decrypt(DataToEncrypt, RSAKeyInfo, DoOAEPPadding));
-    }
+        => await Task.Run(() => Decrypt(DataToEncrypt, RSAKeyInfo, DoOAEPPadding));
 }
