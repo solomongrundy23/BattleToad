@@ -85,6 +85,59 @@ namespace BattleToad.Ext
                 throw new Exception($"Ошибка сохранения файла: {ex.Message}");
             }
         }
+        public static Strings operator +(Strings a, Strings b)
+        {
+            Strings result = new Strings();
+            result.AddRange(a);
+            result.AddRange(b);
+            return result;
+        }
+        public static Strings operator +(Strings a, string[] b)
+        {
+            Strings result = new Strings();
+            result.AddRange(a);
+            result.AddRange(b);
+            return result;
+        }
+        public static Strings operator +(Strings a, List<string> b)
+        {
+            Strings result = new Strings();
+            result.AddRange(a);
+            result.AddRange(b);
+            return result;
+        }
+        public static Strings operator +(Strings a, string b)
+        {
+            Strings result = new Strings();
+            result.AddRange(a);
+            result.Add(b);
+            return result;
+        }
+        public static Strings operator -(Strings a, Strings b)
+        {
+            Strings result = new Strings();
+            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
+            return result;
+        }
+        public static Strings operator -(Strings a, string[] b)
+        {
+            Strings result = new Strings();
+            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
+            return result;
+        }
+        public static Strings operator -(Strings a, List<string> b)
+        {
+            Strings result = new Strings();
+            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
+            return result;
+        }
+        public static Strings operator -(Strings a, string b)
+        {
+            Strings result = new Strings();
+            result.AddRange(a);
+            result.Remove(b);
+            return result;
+        }
     }
     /// <summary>
     /// Цивилизованная многопоточная очередь
@@ -93,6 +146,25 @@ namespace BattleToad.Ext
 
     public static class Extensions
     {
+        //Strings
+        /// <summary>
+        /// Перевести в Strings
+        /// </summary>
+        /// <param name="YourList"></param>
+        /// <returns></returns>
+        public static Strings ToStrings(this string[] YourList)
+        {
+            Strings result = new Strings();
+            result.AddRange(YourList);
+            return result;
+        }
+        /// <summary>
+        /// Перевести в Strings
+        /// </summary>
+        /// <param name="YourList"></param>
+        /// <returns></returns>
+        public static Strings ToStrings(this List<string> YourList)
+            => YourList.ToArray().ToStrings();
         //String
         /// <summary>
         /// Быстро и безболезнено перевести в int
@@ -513,7 +585,7 @@ namespace BattleToad.Ext
         /// <param name="type">алгоритм</param>
         /// <returns></returns>
         public static string GetHashFromString(string text, Type type = Type.MD5)
-            => GetHash(Encoding.UTF8.GetBytes(text), type);
+            => GetHash(Encoding.Unicode.GetBytes(text), type);
         /// <summary>
         /// Получить ХЭШ от времени сейчас
         /// </summary>
@@ -684,6 +756,7 @@ namespace BattleToad.Ext
             else
                 return null;
         }
+        public static int GetByteFromHexString(string hexString) => int.Parse(hexString, NumberStyles.HexNumber);
     }
 
     /// <summary>

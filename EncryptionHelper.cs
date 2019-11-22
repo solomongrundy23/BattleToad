@@ -102,9 +102,9 @@ public class RSAHelper: IDisposable
     /// Пресеты размера ключа
     /// </summary>
     public static class RSA_KEY_LENGTH {
-        public const int RSA128 = 128;
-        public const int RSA256 = 256;
-        public const int RSA512 = 512;
+        public const int RSA128  = 128;
+        public const int RSA256  = 256;
+        public const int RSA512  = 512;
         public const int RSA1024 = 1024;
         public const int RSA2048 = 2048;
         public const int RSA4096 = 4096;
