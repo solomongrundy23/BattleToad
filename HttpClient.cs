@@ -16,7 +16,7 @@ namespace BattleToad.FastHttpClient
         /// Создать экземпляр HttpClient
         /// </summary>
         /// <param name="BaseUrl">Базовый URL</param>
-        HttpClient(string BaseUrl = "")
+        FastHttpClient(string BaseUrl = "")
         {
             BaseURL = BaseUrl;
         }
@@ -100,8 +100,8 @@ namespace BattleToad.FastHttpClient
         /// <param name="url">адрес</param>
         /// <param name="data">данные</param>
         /// <returns></returns>
-        public Response Send(string method, string url, 
-            string ContentType = ContentTypes.text.plain, 
+        public Response Send(string method, string url,
+            string ContentType = ContentTypes.text.plain,
             string Accept = "", string data = null)
         {
             try
@@ -126,7 +126,7 @@ namespace BattleToad.FastHttpClient
                 {
                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                     StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                    return new Response(response.StatusCode, reader.ReadToEndAsync(), null);
+                    return new Response(response.StatusCode, reader.ReadToEnd(), null);
                 }
                 catch (WebException EX)
                 {
@@ -148,7 +148,7 @@ namespace BattleToad.FastHttpClient
         /// <param name="url">адрес</param>
         /// <param name="data">данные</param>
         /// <returns></returns>
-        public async Response SendAsync(string method, string url,
+        public async Task<Response> SendAsync(string method, string url,
             string ContentType = ContentTypes.text.plain,
             string Accept = "", string data = null)
         {
@@ -172,7 +172,7 @@ namespace BattleToad.FastHttpClient
                 }
                 try
                 {
-                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                    HttpWebResponse response = (HttpWebResponse)(await request.GetResponseAsync());
                     StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
                     return new Response(response.StatusCode, await reader.ReadToEndAsync(), null);
                 }
@@ -204,7 +204,6 @@ namespace BattleToad.FastHttpClient
                 public const string javascript = "application/javascript";
                 public const string json = "application/json";
                 public const string msword = "application/msword";
-                public const string msword = "application/msword";
                 public const string octet_stream = "application/octet-stream";
                 public const string ogg = "application/ogg";
                 public const string pdf = "application/pdf";
@@ -231,11 +230,8 @@ namespace BattleToad.FastHttpClient
                 public const string xml_dtd = "application/xml-dtd";
                 public const string xop_xml = "application/xop+xml";
                 public const string x_pkcs12 = "application/x-pkcs12";
-                public const string x_pkcs12 = "application/x-pkcs12";
-                public const string x_pkcs7_certificates = "application/x-pkcs7-certificates";
                 public const string x_pkcs7_certificates = "application/x-pkcs7-certificates";
                 public const string x_pkcs7_certreqresp = "application/x-pkcs7-certreqresp";
-                public const string x_pkcs7_mime = "application/x-pkcs7-mime";
                 public const string x_pkcs7_mime = "application/x-pkcs7-mime";
                 public const string x_pkcs7_signature = "application/x-pkcs7-signature";
                 public const string x_rar_compressed = "application/x-rar-compressed";
