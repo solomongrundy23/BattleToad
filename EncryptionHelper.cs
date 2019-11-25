@@ -36,12 +36,26 @@ namespace BattleToad.Crypt
         /// <returns>Зашифрованная строка</returns>
         public static string Encrypt(this string text, string password) => Encrypting(text, password);
         /// <summary>
-        /// раcшифровать строку
+        /// Зашифровать строку асинхронно
+        /// </summary>
+        /// <param name="text">Строка</param>
+        /// <param name="password">Пароль для шифрования</param>
+        /// <returns>Зашифрованная строка</returns>
+        public static async Task<string> EncryptAsync(this string text, string password) => await EncryptingAsync(text, password);
+        /// <summary>
+        /// Раcшифровать строку
         /// </summary>
         /// <param name="text">Строка</param>
         /// <param name="password">Пароль для шифрования</param>
         /// <returns>Строка</returns>
         public static string Decrypt(this string text, string password) => Decrypting(text, password);
+        /// <summary>
+        /// Раcшифровать строку
+        /// </summary>
+        /// <param name="text">Строка</param>
+        /// <param name="password">Пароль для шифрования</param>
+        /// <returns>Строка</returns>
+        public static async Task<string> DecryptAsync(this string text, string password) => await DecryptingAsync(text, password);
         /// <summary>
         /// Зашифровать строку
         /// </summary>
@@ -51,14 +65,29 @@ namespace BattleToad.Crypt
         public static string Encrypting(string text, string password)
             => Convert.ToBase64String(Crypta(Encoding.Unicode.GetBytes(text), password, false));
         /// <summary>
-        /// раcшифровать строку
+        /// Зашифровать строку асинхронно
+        /// </summary>
+        /// <param name="text">Строка</param>
+        /// <param name="password">Пароль для шифрования</param>
+        /// <returns>Зашифрованная строка</returns>
+        public static async Task<string> EncryptingAsync(string text, string password)
+            => Convert.ToBase64String(await CryptAsync(Encoding.Unicode.GetBytes(text), password, false));
+        /// <summary>
+        /// Раcшифровать строку
         /// </summary>
         /// <param name="text">Строка</param>
         /// <param name="password">Пароль для шифрования</param>
         /// <returns>Строка</returns>
         public static string Decrypting(string text, string password)
             => Encoding.Unicode.GetString(Crypta(Convert.FromBase64String(text), password, true));
-
+        /// <summary>
+        /// Раcшифровать строку асинхронно 
+        /// </summary>
+        /// <param name="text">Строка</param>
+        /// <param name="password">Пароль для шифрования</param>
+        /// <returns>Строка</returns>
+        public static async Task<string> DecryptingAsync(string text, string password)
+            => Encoding.Unicode.GetString(await CryptAsync(Convert.FromBase64String(text), password, true));
         /// <summary>
         /// Зашифровать или раcшифровать массив байт
         /// </summary>
@@ -94,6 +123,15 @@ namespace BattleToad.Crypt
             }
             return result;
         }
+        /// <summary>
+        /// Зашифровать или раcшифровать массив байт асинхронно
+        /// </summary>
+        /// <param name="cipherBytes">байты</param>
+        /// <param name="password">пароль</param>
+        /// <param name="decrypt">режим расшифровки, False - зашифровать, True - раcшифровать</param>
+        /// <returns>Массив байт</returns>
+        public static async Task<byte[]> CryptAsync(byte[] cipherBytes, string password, bool decrypt)
+            => await Task.Run(() => Crypta(cipherBytes, password, decrypt));
     }
     /// <summary>
     /// Класс-помощник для работы с шифрованием RSA
