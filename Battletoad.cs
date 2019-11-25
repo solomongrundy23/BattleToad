@@ -627,6 +627,57 @@ namespace BattleToad.Ext
         }
     }
 
+    public static class ConsoleEx
+    {
+        public static void Input(string label, out string data)
+        {
+            Console.Write(label);
+            data = Console.ReadLine();
+        }
+        public static void RepeatRepeat(int repeat, string text = "")
+        {
+            for (int i = 0; i < repeat; i++) Console.WriteLine(text);
+        }
+        public static void Print(string text = "")
+        {
+            Console.WriteLine(text);
+        }
+        public static void PrintColor(string text,ConsoleColor front, ConsoleColor back)
+        {
+            Console.ForegroundColor = front;
+            Console.BackgroundColor = back;
+            Console.WriteLine(text);
+        }
+        public static void Print(string text, int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.WriteLine(text);
+        }
+        public class Progress
+        {
+            private int max;
+            private int length = 20;
+            public Progress(int Max, int Length = 20)
+            {
+                if (length < 5) throw new Exception($"Длина {length} слишком мала, должна быть больше 5");
+                max = Max;
+                length = Length;
+            }
+            public string Print(int value)
+            {
+                if (value > max) value = max;
+                string result = "";
+                int _max = value * (length - 3) / max;
+                for (int i = 0; i < _max; i++) result += "=";
+                return 
+                    value == 
+                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length) 
+                    :
+                    $"[{(result + '>').AddToEndWhileLengthNotValid('.', length - 3)}]";
+            }
+        }
+    }
+
     /// <summary>
     /// Дополнительный функционал
     /// </summary>
