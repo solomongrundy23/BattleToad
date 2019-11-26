@@ -649,17 +649,55 @@ namespace BattleToad.Ext
             Console.SetCursorPosition(x, y);
             Console.WriteLine(text);
         }
+        /// <summary>
+        /// Текстовый прогрессбар
+        /// </summary>
         public class Progress
         {
             private int max;
             private int length = 20;
-            public Progress(int Max, int Length = 20)
+            private delegate string GetProgressTextDelegate(int value);
+            private GetProgressTextDelegate GetProgressText;
+            /// <summary>
+            /// Создать прогрессбар
+            /// </summary>
+            /// <param name="Max"></param>
+            /// <param name="Length"></param>
+            public Progress(int Max, int theme = 0, int Length = 20)
             {
                 if (length < 5) throw new Exception($"Длина {length} слишком мала, должна быть больше 5");
                 max = Max;
                 length = Length;
+                switch (theme)
+                {
+                    case 0: GetProgressText = Theme1; break;
+                    case 1: GetProgressText = Theme2; break;
+                    case 2: GetProgressText = Theme3; break;
+                    case 3: GetProgressText = Theme4; break;
+                    case 4: GetProgressText = Theme5; break;
+                    default: GetProgressText = Theme1; break;
+                }
             }
-            public string GetProgressText(int value)
+            public string GetProgress(int value) => GetProgressText(value);
+
+            private string Theme1(int value)
+            {
+                if (value > max) value = max;
+                return value == max ? "[OK]" : $"{value * 100 / max}%";
+            }
+            private string Theme2(int value)
+            {
+                if (value > max) value = max;
+                string result = "";
+                int _max = value * (length - 3) / max;
+                for (int i = 0; i < _max; i++) result += "=";
+                return
+                    value ==
+                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    :
+                    $"|{(result + '>').AddToEndWhileLengthNotValid(' ', length - 3)}|";
+            }
+            private string Theme3(int value)
             {
                 if (value > max) value = max;
                 string result = "";
@@ -671,6 +709,39 @@ namespace BattleToad.Ext
                     :
                     $"[{(result + '>').AddToEndWhileLengthNotValid('.', length - 3)}]";
             }
+            private string Theme4(int value)
+            {
+                if (value > max) value = max;
+                string result = "";
+                int _max = value * (length - 2) / max;
+                for (int i = 0; i < _max; i++) result += "*";
+                return
+                    value ==
+                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    :
+                    $"[{(result).AddToEndWhileLengthNotValid('.', length - 2)}]";
+            }
+            private string Theme5(int value)
+            {
+                if (value > max) value = max;
+                string result = "";
+                int _max = value * (length - 2) / max;
+                for (int i = 0; i < _max; i++) result += "|";
+                return
+                    value ==
+                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    :
+                    $"[{ value * 100 / max}{(result).AddToStartWhileLengthNotValid(' ', length - 2)}]";
+            }
+
+            /// <summary>
+            /// Вывести прогрессбар в косноль
+            /// </summary>
+            /// <param name="value">значение</param>
+            /// <param name="x">позиция x</param>
+            /// <param name="y">позиция y</param>
+            public void GetProgressToConsole(int value, int x, int y)
+                => ConsoleEx.PrintAtPoint(GetProgress(value), x, y);
         }
     }
 
