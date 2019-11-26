@@ -16,7 +16,7 @@ namespace BattleToad.FastHttpClient
         /// Создать экземпляр HttpClient
         /// </summary>
         /// <param name="BaseUrl">Базовый URL</param>
-        FastHttpClient(string BaseUrl = "")
+        public FastHttpClient(string BaseUrl = "")
         {
             BaseURL = BaseUrl;
         }
@@ -92,7 +92,7 @@ namespace BattleToad.FastHttpClient
         /// <summary>
         /// Печеньки
         /// </summary>
-        public CookieContainer mycookies = new CookieContainer();
+        public CookieContainer Сookies = new CookieContainer();
         /// <summary>
         /// Отправить HTTP-запрос
         /// </summary>
@@ -106,12 +106,13 @@ namespace BattleToad.FastHttpClient
         {
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = method;
-                request.ContentType = ContentType;
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(BaseURL + url);
+                request.Method = method.ToUpper();
                 request.Headers = Headers;
+                request.ContentType = ContentType;
+                request.Accept = Accept;
                 request.UserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36";
-                request.CookieContainer = mycookies;
+                request.CookieContainer = Сookies;
                 request.Headers.Add("charset", "utf-8");
                 if (data != null)
                 {
@@ -154,13 +155,13 @@ namespace BattleToad.FastHttpClient
         {
             try
             {
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-                request.Method = method;
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(BaseURL + url);
+                request.Method = method.ToUpper();
+                request.Headers = Headers;
                 request.ContentType = ContentType;
                 request.Accept = Accept;
-                request.Headers = Headers;
                 request.UserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.100 Safari/537.36";
-                request.CookieContainer = mycookies;
+                request.CookieContainer = Сookies;
                 if (data != null)
                 {
                     byte[] b_data = Encoding.UTF8.GetBytes(data);

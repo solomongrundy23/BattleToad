@@ -427,7 +427,7 @@ namespace BattleToad.Ext
     /// <summary>
     /// Класс для логирования
     /// </summary>
-    public class Log:IDisposable
+    public class Log : IDisposable
     {
         private bool disposed = false;
         /// <summary>
@@ -475,7 +475,7 @@ namespace BattleToad.Ext
         /// Создать логирование
         /// </summary>
         /// <param name="LogFile">путь к файлу лога</param>
-        public Log(string LogFile)
+        public Log(string LogFile = "log.txt")
         {
             FileName = LogFile;
             WritterThread = new Thread(Writter)
@@ -557,26 +557,27 @@ namespace BattleToad.Ext
         /// <param name="bytes">массив байт</param>
         /// <param name="type">алгоритм</param>
         /// <returns></returns>
-        public static string GetHash(byte[] bytes, Type type = Type.MD5)
+        private static HashAlgorithm GetAlgorithm(Type type)
         {
-            HashAlgorithm algorithm;
             switch (type)
             {
-                case Type.MD5: algorithm = new MD5CryptoServiceProvider(); break;
-                case Type.SHA256: algorithm = new SHA256CryptoServiceProvider(); break;
-                case Type.SHA512: algorithm = new SHA512CryptoServiceProvider(); break;
-                case Type.SHA1: algorithm = new SHA1CryptoServiceProvider(); break;
-                case Type.SHA384: algorithm = new SHA384CryptoServiceProvider(); break;
-                default: algorithm = new MD5CryptoServiceProvider(); break;
+                case Type.MD5: return new MD5CryptoServiceProvider();
+                case Type.SHA256: return new SHA256CryptoServiceProvider();
+                case Type.SHA512: return new SHA512CryptoServiceProvider();
+                case Type.SHA1: return new SHA1CryptoServiceProvider();
+                case Type.SHA384: return new SHA384CryptoServiceProvider();
+                default: return new MD5CryptoServiceProvider();
             }
-            bytes = algorithm.ComputeHash(bytes);
-            var s = new StringBuilder();
-            foreach (var b in bytes)
+        }
+        public static string GetHash(byte[] bytes, Type type = Type.MD5)
+        {
+            using (HashAlgorithm algorithm = GetAlgorithm(type))
             {
-                s.Append(b.ToString("x2").ToLower());
+                bytes = algorithm.ComputeHash(bytes);
+                string result = BitConverter.ToString(bytes).Replace("-", string.Empty);
+                algorithm.Dispose();
+                return result;
             }
-            algorithm.Dispose();
-            return s.ToString();
         }
         /// <summary>
         /// Получить ХЭШ из строки
@@ -597,21 +598,16 @@ namespace BattleToad.Ext
         /// Получить ХЭШ файла
         /// </summary>
         /// <param name="path">путь к файлу</param>
+        /// <param name="type">тип ХЭШа</param>
         /// <returns></returns>
-        public static string ComputeFileChecksum(string path)
+        public static string ComputeFileChecksum(string path, Type type = Type.MD5)
         {
             using (FileStream fs = File.OpenRead(path))
+            using (HashAlgorithm algorithm = GetAlgorithm(type))
             {
-                SHA512 sha512 = new SHA512CryptoServiceProvider();
-                byte[] fileData = new byte[fs.Length];
-                fs.Read(fileData, 0, (int)fs.Length);
-                byte[] bytes = sha512.ComputeHash(fileData);
-                var s = new StringBuilder();
-                foreach (var b in bytes)
-                {
-                    s.Append(b.ToString("x2").ToLower());
-                }
-                return s.ToString();
+                byte[] checkSum = algorithm.ComputeHash(fs);
+                string result = BitConverter.ToString(checkSum).Replace("-", string.Empty);
+                return result;
             }
         }
         /// <summary>
@@ -642,13 +638,13 @@ namespace BattleToad.Ext
         {
             Console.WriteLine(text);
         }
-        public static void PrintColor(string text,ConsoleColor front, ConsoleColor back)
+        public static void PrintColor(string text, ConsoleColor front, ConsoleColor back)
         {
             Console.ForegroundColor = front;
             Console.BackgroundColor = back;
             Console.WriteLine(text);
         }
-        public static void Print(string text, int x, int y)
+        public static void PrintAtPoint(string text, int x, int y)
         {
             Console.SetCursorPosition(x, y);
             Console.WriteLine(text);
@@ -663,15 +659,15 @@ namespace BattleToad.Ext
                 max = Max;
                 length = Length;
             }
-            public string Print(int value)
+            public string GetProgressText(int value)
             {
                 if (value > max) value = max;
                 string result = "";
                 int _max = value * (length - 3) / max;
                 for (int i = 0; i < _max; i++) result += "=";
-                return 
-                    value == 
-                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length) 
+                return
+                    value ==
+                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
                     :
                     $"[{(result + '>').AddToEndWhileLengthNotValid('.', length - 3)}]";
             }
@@ -697,7 +693,7 @@ namespace BattleToad.Ext
         /// <param name="text"></param>
         /// <param name="default_value"></param>
         /// <returns></returns>
-        public static long ToLong(string text, long default_value = long.MinValue) 
+        public static long ToLong(string text, long default_value = long.MinValue)
             => long.TryParse(text, out long x) ? x : default_value;
         /// <summary>
         /// Вывести переменные класса
@@ -1069,5 +1065,132 @@ namespace BattleToad.Ext
         /// <param name="number"></param>
         /// <returns>number % 2 == 0</returns>
         public static bool IsEven(this int number) => number % 2 == 0;
+    }
+
+    public class CSV
+    {
+        /// <summary>
+        /// Создать экземплер
+        /// </summary>
+        /// <param name="split_char"></param>
+        /// <param name="quotes"></param>
+        /// <param name="null_Text"></param>
+        public CSV(char split_char = '\t', char? quotes = null, string null_Text = null) 
+        {
+            Quotes = quotes;
+            SplitChar = split_char;
+            Null_Text = null_Text;
+        }
+        /// <summary>
+        /// Знак кавычек, если нет, то null
+        /// </summary>
+        public char? Quotes;
+        /// <summary>
+        /// Разделитель колонок
+        /// </summary>
+        public char SplitChar;
+        public string Null_Text;
+        /// <summary>
+        /// Заголовок CSV
+        /// </summary>
+        public string[] Header;
+        /// <summary>
+        /// Загрузить CSV-файл
+        /// </summary>
+        /// <param name="file_name">имя файла</param>
+        /// <param name="first_line_is_header">первая строка, это заголовок</param>
+        public async Task LoadAsync(string file_name, bool first_line_is_header = false)
+            => await Task.Run(() => Load(file_name, first_line_is_header));
+        /// <summary>
+        /// Сохранить данные CSV в файл
+        /// </summary>
+        /// <param name="file_name">имя файла</param>
+        /// <param name="write_header">записывать ли заголовок, если он не Null</param>
+        public async Task SaveAsync(string file_name, bool write_header = true)
+            => await Task.Run(() => Save(file_name, write_header));
+        /// <summary>
+        /// Загрузить CSV-файл
+        /// </summary>
+        /// <param name="file_name">имя файла</param>
+        /// <param name="first_line_is_header">первая строка, это заголовок</param>
+        public void Load(string file_name, bool first_line_is_header = false)
+        {
+            try
+            {
+                List<string[]> result = new List<string[]>();
+                string[] file_data = File.ReadAllText(file_name).GetLines(false);
+                foreach (string file_string in file_data)
+                {
+                    string[] records = ParseLine(file_string);
+                    if (records != null) result.Add(records);
+                }
+                if (first_line_is_header)
+                {
+                    if (result.Count == 0)
+                    {
+                        throw new Exception($"Не могу найти заголовок");
+                    }
+                    else
+                    {
+                        Header = result[0];
+                        result.RemoveAt(0);
+                    }
+                }
+                Data = result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка загрузки CSV-файла. {ex.Message}");
+            }
+        }
+        /// <summary>
+        /// Сохранить данные CSV в файл
+        /// </summary>
+        /// <param name="file_name">имя файла</param>
+        /// <param name="write_header">записывать ли заголовок, если он не Null</param>
+        public void Save(string file_name, bool write_header = true)
+        {
+            try
+            {
+                List<string> result = new List<string>();
+                if (Header != null && write_header) result.Add(UnTrimmerRecord(Header));
+                foreach (string[] records in Data)
+                {
+                    result.Add(UnTrimmerRecord(records));
+                }
+                File.WriteAllLines(file_name, result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Ошибка  CSV-файла. {ex.Message}");
+            }
+        }
+        /// <summary>
+        /// Данные CSV, хранятся как список массивов строк
+        /// </summary>
+        public List<string[]> Data = new List<string[]>();
+        private string[] ParseLine(string line)
+        {
+            return line.Split(SplitChar).Select(x => Trimmer(x)).ToArray();
+        }
+        private string Trimmer(string record)
+        {
+            if (record == Null_Text) return null;
+            return Quotes == null ? record : record.Trim(Quotes.Value);
+        }
+        private string UnTrimmer(string record)
+        {
+            if (record == Null_Text) return Null_Text;
+            return Quotes == null ? record : $"{Quotes}{record}{Quotes}";
+        }
+        private string UnTrimmerRecord(string[] records) => string.Join($"{SplitChar}", records.Select(x => UnTrimmer(x)).ToArray());
+
+        /// <summary>
+        /// Запустить сборку мусора GC.Collect()
+        /// </summary>
+        public void GarbageCollect()
+        {
+            GC.Collect();
+        }
     }
 }
