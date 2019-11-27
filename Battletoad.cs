@@ -1088,7 +1088,7 @@ namespace BattleToad.Ext
         public static string OneToFirstEng(this int number)
         {
             string text = number.ToString();
-            if (text.Length == 2) return $"{text}th";
+            if (text.Length == 2 && text.StartsWith("1")) return $"{text}th";
             switch (text.LastOrDefault())
             {
                 case '0': return text == "0" ? text : $"{text}th";
