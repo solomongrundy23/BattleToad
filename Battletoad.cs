@@ -1015,4 +1015,88 @@ namespace BattleToad.Ext
         /// <returns>number % 2 == 0</returns>
         public static bool IsEven(this int number) => number % 2 == 0;
     }
+
+    /// <summary>
+    /// Имя файла
+    /// </summary>
+    public class FileName
+    {
+        /// <summary>
+        /// Создать экземпляр имени класса
+        /// </summary>
+        /// <param name="file_name"></param>
+        public FileName(string file_name)
+        {
+            Name = System.IO.Path.GetFileNameWithoutExtension(file_name);
+            Extension = System.IO.Path.GetExtension(file_name);
+            Path = System.IO.Path.GetDirectoryName(file_name);
+        }
+        /// <summary>
+        /// Имя файла без расширения
+        /// </summary>
+        public string Name { get; set; }
+        /// <summary>
+        /// Расширение файла
+        /// </summary>
+        public string Extension { get; set; }
+        /// <summary>
+        /// Путь к файлу
+        /// </summary>
+        public string Path { get; set; }
+        /// <summary>
+        /// Полный путь к файлу
+        /// </summary>
+        public string Full => Path == "" ? $"{Name}{Extension}" : $"{Path}\\{Name}{Extension}";
+        /// <summary>
+        /// Имя файла с расширением
+        /// </summary>
+        public string NameWithExtension => $"{Name}{Extension}";
+    }
+    /// <summary>
+    /// Перевести int в числительные строки, к примеру 1ый, 2ой, 103ий
+    /// </summary>
+    public static class OneToFirst
+    {
+        /// <summary>
+        /// Перевести int в числительные строки на русском языке
+        /// </summary>
+        /// <param name="number">число</param>
+        /// <returns></returns>
+        public static string OneToFirstRus(this int number)
+        {
+            string text = number.ToString();
+            switch (text.LastOrDefault())
+            {
+                case '0': return text == "0" ? $"{text}ой" : $"{text}ый";
+                case '1': return $"{text}ый";
+                case '2': return $"{text}ой";
+                case '3': return $"{text}ий";
+                case '4': return $"{text}ый";
+                case '5': return $"{text}ый";
+                case '6': return $"{text}ой";
+                case '7': return $"{text}ой";
+                case '8': return $"{text}ой";
+                case '9': return $"{text}ый";
+                default: return text;
+            }
+        }
+        /// <summary>
+        /// Перевести int в числительные строки на английском языке
+        /// </summary>
+        /// <param name="number">число</param>
+        /// <returns></returns>
+        public static string OneToFirstEng(this int number)
+        {
+            string text = number.ToString();
+            if (text.Length == 2) return $"{text}th";
+            switch (text.LastOrDefault())
+            {
+                case '0': return text == "0" ? text : $"{text}th";
+                case '1': return $"{text}st";
+                case '2': return $"{text}nd";
+                case '3': return $"{text}rd";
+                default: return $"{text}th";
+            }
+        }
+    }
 }
