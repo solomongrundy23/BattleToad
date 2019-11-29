@@ -1,13 +1,13 @@
-﻿using System;
+﻿using BattleToad.Ext;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using BattleToad.Ext;
 
 namespace BattleToad.CSV
 {
-    public class CSV
+    public class CSV : IDisposable
     {
         /// <summary>
         /// Создать экземплер
@@ -120,7 +120,7 @@ namespace BattleToad.CSV
         }
         private string UnTrimmer(string record)
         {
-            if (record == Null_Text) return Null_Text;
+            if (record == null) return Null_Text;
             return Quotes == null ? record : $"{Quotes}{record}{Quotes}";
         }
         private string UnTrimmerRecord(string[] records) => string.Join($"{SplitChar}", records.Select(x => UnTrimmer(x)).ToArray());
@@ -131,6 +131,16 @@ namespace BattleToad.CSV
         public void GarbageCollect()
         {
             GC.Collect();
+        }
+        /// <summary>
+        /// Освободить ресурсы
+        /// </summary>
+        public void Dispose()
+        {
+            Data = null;
+            GC.SuppressFinalize(this);
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 }

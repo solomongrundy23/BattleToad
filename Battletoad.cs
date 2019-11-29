@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -7,10 +8,9 @@ using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Principal;
-using System.Text;
 using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading.Tasks;
-using System.Collections.Concurrent;
 using System.Threading;
 
 namespace BattleToad.Ext
@@ -84,6 +84,19 @@ namespace BattleToad.Ext
             {
                 throw new Exception($"Ошибка сохранения файла: {ex.Message}");
             }
+        }
+        public static Strings operator +(Strings a, IEnumerable<string> b)
+        {
+            Strings result = new Strings();
+            result.AddRange(a);
+            result.AddRange(b);
+            return result;
+        }
+        public static Strings operator -(Strings a, IEnumerable<string> b)
+        {
+            Strings result = new Strings();
+            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
+            return result;
         }
         public static Strings operator +(Strings a, Strings b)
         {
@@ -541,7 +554,6 @@ namespace BattleToad.Ext
             Write(obj.PrintClassValues(private_data, data_type).ToText(), title);
         }
     }
-
     /// <summary>
     /// Класс для упрощения работы с хэшированием
     /// </summary>
@@ -628,13 +640,78 @@ namespace BattleToad.Ext
     /// </summary>
     public static class Addons
     {
+        public static DateTime GetDateFromDayMonthYear(int Day, int Month, int Year)
+        {
+            DateTime.TryParse($"{Day}.{Month}.{Year}", out DateTime result);
+            return result;
+        }
+
+        public static DateTime GetDateFromDayMonthYear(string Day, string Month, string Year)
+        {
+            DateTime.TryParse($"{Day}.{Month}.{Year}", out DateTime result);
+            return result;
+        }
+
         /// <summary>
-        /// Быстро и безболезнено перевести в int
+        /// Получить количество лет и месяцев между двумя датами
         /// </summary>
-        /// <param name="text"></param>
-        /// <param name="default_value"></param>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
         /// <returns></returns>
-        public static int ToInt(string text, int default_value = int.MinValue)
+        public static string GetAge(DateTime start, DateTime? end = null)
+        {
+            try
+            {
+                if (end == null) end = DateTime.Now;
+                DateTime dt1 = new DateTime(start.Year, start.Month, start.Day);
+                DateTime dt2 = new DateTime(end.Value.Year, end.Value.Month, end.Value.Day);
+
+                if (dt1 > dt2 || dt1 == dt2)
+                    return "0 месяцев";
+
+                double days = (dt2 - dt1).TotalDays;
+                double mnt = 0;
+
+                while (days != 0)
+                {
+                    int inMnt = DateTime.DaysInMonth(dt1.Year, dt1.Month);
+                    if (days >= inMnt)
+                    {
+                        days -= inMnt;
+                        ++mnt;
+                        dt1 = dt1.AddMonths(1);
+                    }
+                    else
+                    {
+                        mnt += days / inMnt;
+                        days = 0;
+                    }
+                }
+                int mntx = (int)mnt;
+                string years = (mntx / 12).ToString();
+                if ("1234".Contains(years.Last())) years += " года"; else years += " лет";
+                string month = (mntx % 12).ToString();
+                if ("234".Contains(month.Last())) month += " месяца";
+                else
+                    if ('1' == month.Last()) month += " месяц";
+                else
+                    if ('0' == month.Last()) month = "";
+                else
+                    month += " месяцев";
+                return month == "" ? years : $"{years} и {month}";
+            }
+            catch
+            {
+                return null;
+            }
+        }
+            /// <summary>
+            /// Быстро и безболезнено перевести в int
+            /// </summary>
+            /// <param name="text"></param>
+            /// <param name="default_value"></param>
+            /// <returns></returns>
+            public static int ToInt(string text, int default_value = int.MinValue)
             => int.TryParse(text, out int x) ? x : default_value;
         /// <summary>
         /// Быстро и безболезнено перевести в long
@@ -758,7 +835,7 @@ namespace BattleToad.Ext
     /// <summary>
     /// В транслит
     /// </summary>
-    internal static class Translitiration
+    public static class Translitiration
     {
         private static readonly Dictionary<char, string> ConvertedLetters = new Dictionary<char, string>
             {
@@ -829,7 +906,12 @@ namespace BattleToad.Ext
                 {'Ю', "Yu"},
                 {'Я', "Ya"}
             };
-        internal static string ConvertToLatin(string source)
+        /// <summary>
+        /// Перевести русский текст в транслит
+        /// </summary>
+        /// <param name="source">исходная строка</param>
+        /// <returns>строка в транслите</returns>
+        public static string ConvertToLatin(string source)
         {
             var result = new StringBuilder();
             foreach (var letter in source)
@@ -849,6 +931,12 @@ namespace BattleToad.Ext
     /// </summary>
     public static class RusPhoneNumbers
     {
+        /// <summary>
+        /// Получить номер телефона из текста
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <param name="prefix">Префикс в зависимости от желамого результата рекомедуется: "", "+7", "8" или "7"</param>
+        /// <returns>номер телефона в виде строки</returns>
         public static string GetPhoneNumber(string text, string prefix = "")
         {
             List<char> cha = text.Where(x => IsNum(x)).ToList();
@@ -858,6 +946,10 @@ namespace BattleToad.Ext
             if (cha.Count == 11) cha.RemoveAt(0);
             return $"{prefix}{string.Join("", cha)}";
         }
+        /// <summary>
+        /// Проверить, является ли строка телефонным номеров
+        /// </summary>
+        /// <param name="number">номер телефона</param>
         public static bool IsPhoneNumber(string number)
         {
             number = Regex.Replace(number, @"[\(\)-]", "");
@@ -1061,9 +1153,10 @@ namespace BattleToad.Ext
         /// Перевести int в числительные строки на русском языке
         /// </summary>
         /// <param name="number">число</param>
-        /// <returns></returns>
+        /// <returns>числительное строка</returns>
         public static string OneToFirstRus(this int number)
         {
+            if (number >= 10 && number < 20) return $"{number}ый";
             string text = number.ToString();
             switch (text.LastOrDefault())
             {
@@ -1084,11 +1177,11 @@ namespace BattleToad.Ext
         /// Перевести int в числительные строки на английском языке
         /// </summary>
         /// <param name="number">число</param>
-        /// <returns></returns>
+        /// <returns>числительное строка</returns>
         public static string OneToFirstEng(this int number)
         {
+            if (number >= 10 && number < 20) return $"{number}th";
             string text = number.ToString();
-            if (text.Length == 2 && text.StartsWith("1")) return $"{text}th";
             switch (text.LastOrDefault())
             {
                 case '0': return text == "0" ? text : $"{text}th";

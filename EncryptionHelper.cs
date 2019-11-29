@@ -1,9 +1,9 @@
 ﻿using BattleToad.XMLHelper;
+using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System;
 
 namespace BattleToad.Crypt
 {

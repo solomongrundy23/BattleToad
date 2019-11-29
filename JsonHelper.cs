@@ -12,14 +12,14 @@ namespace BattleToad.JSONHelper
         /// </summary>>
         /// <param name="obj">класс</param>
         /// <returns></returns>
-        public static string ToJson<T>(this T obj) => JSONHelper.Serialize(obj);
+        public static string ToJson<T>(this T obj) => Serialize(obj);
         /// <summary>
         /// В класс из JSON
         /// </summary>
         /// <typeparam name="T">класс</typeparam>
         /// <param name="json">JSON</param>
         /// <returns></returns>
-        public static T FromJson<T>(this string json) => JSONHelper.Deserialize<T>(json);
+        public static T FromJson<T>(this string json) => Deserialize<T>(json);
         /// <summary>
         /// Класс в JSON
         /// </summary>
@@ -42,5 +42,6 @@ namespace BattleToad.JSONHelper
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             return serializer.Deserialize<T>(json);
         }
+        public static string FreddyVsJSON => "Json Wins";
     }
 }

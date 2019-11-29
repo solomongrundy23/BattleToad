@@ -1,28 +1,55 @@
-﻿using System;
-using BattleToad.Ext;
+﻿using BattleToad.Ext;
+using System;
 
 namespace BattleToad.ConsoleEx
 {
     public static class ConsoleEx
     {
+        /// <summary>
+        /// Вывести в консоль значение переменной
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        public static void WriteInConsole<T>(this T obj) => Console.Write(obj);
+        /// <summary>
+        /// Вывести в консоль значение переменной с переходом на новую строку
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void WriteLineInConsole<T>(this T obj) => Console.WriteLine(obj);
+        /// <summary>
+        /// Вывести текст и считать переменную из консоли
+        /// </summary>
+        /// <param name="label">текст</param>
+        /// <param name="data">переменная</param>
         public static void Input(string label, out string data)
         {
             Console.Write(label);
             data = Console.ReadLine();
         }
-        public static void RepeatRepeat(int repeat, string text = "")
+        /// <summary>
+        /// Вывести текст в цикле
+        /// </summary>
+        /// <param name="repeat">количество повторов</param>
+        /// <param name="text">выводимый текст</param>
+        public static void RepeatPrint(int repeat, string text = "")
         {
             for (int i = 0; i < repeat; i++) Console.WriteLine(text);
         }
-        public static void Print(string text = "")
+        /// <summary>
+        /// Вывести цвет определенным цветом
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="front"></param>
+        /// <param name="back"></param>
+        public static void PrintColor(string text, ConsoleColor? front = null, ConsoleColor? back = null)
         {
+            ConsoleColor oldFore = Console.ForegroundColor;
+            ConsoleColor oldBack = Console.BackgroundColor;
+            if (front.HasValue) Console.ForegroundColor = front.Value;
+            if (back.HasValue) Console.BackgroundColor = back.Value;
             Console.WriteLine(text);
-        }
-        public static void PrintColor(string text, ConsoleColor front, ConsoleColor back)
-        {
-            Console.ForegroundColor = front;
-            Console.BackgroundColor = back;
-            Console.WriteLine(text);
+            Console.ForegroundColor = oldFore;
+            Console.BackgroundColor = oldBack;
         }
         public static void PrintAtPoint(string text, int x, int y)
         {

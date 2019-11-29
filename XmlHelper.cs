@@ -14,14 +14,14 @@ namespace BattleToad.XMLHelper
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
         /// <returns></returns>
-        public static string ToXML<T>(this T obj) => XMLHelper.Serialize(obj);
+        public static string ToXML<T>(this T obj) => Serialize(obj);
         /// <summary>
         /// В класс из XML
         /// </summary>
         /// <typeparam name="T">класс</typeparam>
         /// <param name="xml">XML</param>
         /// <returns></returns>
-        public static T FromXML<T>(this string xml) => XMLHelper.Deserialize<T>(xml);
+        public static T FromXML<T>(this string xml) => Deserialize<T>(xml);
         /// <summary>
         /// Класс в XML
         /// </summary>
