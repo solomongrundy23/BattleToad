@@ -26,7 +26,6 @@ namespace BattleToad.FastHttpClient
         {
             BaseURL = BaseUrl;
         }
-
         /// <summary>
         /// Ответ на запрос от HttpClient
         /// </summary>
@@ -38,7 +37,7 @@ namespace BattleToad.FastHttpClient
             /// <param name="code">Код ответ</param>
             /// <param name="text">Ответ в строке</param>
             /// <param name="error">Текст ошибки</param>
-            public Response(HttpStatusCode code, string text, string error)
+            public Response(HttpStatusCode code,  string text, string error)
             {
                 resp_statusCode = code;
                 ResponseString = text;
@@ -70,7 +69,65 @@ namespace BattleToad.FastHttpClient
             /// <summary>
             /// Текст ответа
             /// </summary>
-            public readonly string ResponseString;
+            public string ResponseString;
+            private readonly HttpStatusCode resp_statusCode;
+            /// <summary>
+            /// Получить Код, Текст ошибки и Ответ в виде строки, например, для логирования
+            /// </summary>
+            public string GetString
+            {
+                get
+                {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    if (StatusCode != 0) stringBuilder.AppendLine($"Код: {StatusCodeString}");
+                    if (Error != null) stringBuilder.AppendLine($"Ошибка: {Error}");
+                    if (ResponseString != null) stringBuilder.AppendLine($"Ответ: {ResponseString}");
+                    return stringBuilder.ToString();
+                }
+            }
+        }
+        public class ResponseBytes 
+        {
+            /// <summary>
+            /// Создает новый ответ
+            /// </summary>
+            /// <param name="code">Код ответ</param>
+            /// <param name="text">Массив байт</param>
+            /// <param name="error">Текст ошибки</param>
+            public ResponseBytes(HttpStatusCode code, string error, byte[] bytes = null)
+            {
+                resp_statusCode = code;
+                Bytes = bytes;
+                Error = error;
+            }
+            //Создает новый ответ только с ошибкой
+            public ResponseBytes(string error)
+            {
+                Error = error;
+            }
+            /// <summary>
+            /// Код ответа
+            /// </summary>
+            public int StatusCode
+            {
+                get { return (int)resp_statusCode; }
+            }
+            /// <summary>
+            /// Код ответа с расшифровкой
+            /// </summary>
+            public string StatusCodeString
+            {
+                get { return $"{((int)resp_statusCode).ToString()} {resp_statusCode}"; }
+            }
+            /// <summary>
+            /// Текст ошибки запроса
+            /// </summary>
+            public readonly string Error;
+            /// <summary>
+            /// Текст ответа
+            /// </summary>
+            public byte[] Bytes;
+            public string ResponseString => Bytes == null ? "" : Encoding.UTF8.GetString(Bytes);
             private readonly HttpStatusCode resp_statusCode;
             /// <summary>
             /// Получить Код, Текст ошибки и Ответ в виде строки, например, для логирования
@@ -123,15 +180,15 @@ namespace BattleToad.FastHttpClient
                 }
                 try
                 {
-                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                    return new Response(response.StatusCode, reader.ReadToEnd(), null);
+                    using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                        using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                            return new Response(response.StatusCode, reader.ReadToEnd(), null);
                 }
                 catch (WebException EX)
                 {
-                    HttpWebResponse response = EX.Response as HttpWebResponse;
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                    return new Response(response.StatusCode, reader.ReadToEnd(), EX.Message);
+                    using (HttpWebResponse response = EX.Response as HttpWebResponse)
+                        using (StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                            return new Response(response.StatusCode, reader.ReadToEnd(), EX.Message);
                 }
             }
             catch (Exception EX)
@@ -171,15 +228,15 @@ namespace BattleToad.FastHttpClient
                 }
                 try
                 {
-                    HttpWebResponse response = (HttpWebResponse)(await request.GetResponseAsync());
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                    return new Response(response.StatusCode, await reader.ReadToEndAsync(), null);
+                    using (var response = (HttpWebResponse)(await request.GetResponseAsync()))
+                        using (var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                            return new Response(response.StatusCode, await reader.ReadToEndAsync(), null);
                 }
                 catch (WebException EX)
                 {
-                    HttpWebResponse response = EX.Response as HttpWebResponse;
-                    StreamReader reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
-                    return new Response(response.StatusCode, await reader.ReadToEndAsync(), EX.Message);
+                    using (var response = EX.Response as HttpWebResponse)
+                        using (var reader = new StreamReader(response.GetResponseStream(), Encoding.UTF8))
+                            return new Response(response.StatusCode, await reader.ReadToEndAsync(), EX.Message);
                 }
             }
             catch (Exception EX)

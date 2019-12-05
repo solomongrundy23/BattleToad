@@ -962,16 +962,16 @@ namespace BattleToad.Ext
                 Regex.IsMatch(number, @"^((\+7)|7|8)\(\d\d\d\)\d\d\d-\d\d-\d\d$")
                 );
         }
-        public static string GetPhoneNumbersIgnoreOneSpace(string text, string prefix = "")
+        public static string[] GetPhoneNumbersIgnoreOneSpace(string text, string prefix = "")
             => GetPhoneNumbersIgnoreSpaces(text.Replace("  ", "\t"), prefix);
-        public static string GetPhoneNumbersIgnoreSpaces(string text, string prefix = "")
+        public static string[] GetPhoneNumbersIgnoreSpaces(string text, string prefix = "")
             => GetPhoneNumbers(text.Replace(" ", ""), prefix);
-        public static string GetPhoneNumbers(string text, string prefix = "")
+        public static string[] GetPhoneNumbers(string text, string prefix = "")
         {
             text = Regex.Replace(text, @"[\(\)-]", "");
             string[] texts = Regex.Split(text, @"[\W+]");
             texts = texts.Select(x => GetPhoneNumber(x, prefix)).Where(x => x != null).ToArray();
-            return string.Join(Environment.NewLine, texts);
+            return texts;
         }
         private static bool IsNum(char ch) => ch >= '0' && ch <= '9';
     }

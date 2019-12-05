@@ -1,7 +1,7 @@
 ﻿using BattleToad.Ext;
 using System;
 
-namespace BattleToad.ConsoleEx
+namespace BattleToad.ConsoleAddons
 {
     public static class ConsoleEx
     {
@@ -51,6 +51,32 @@ namespace BattleToad.ConsoleEx
             Console.ForegroundColor = oldFore;
             Console.BackgroundColor = oldBack;
         }
+        /// <summary>
+        /// Console.WriteLine
+        /// </summary>
+        /// <param name="text">текст</param>
+        public static void Print(string text) => Console.WriteLine(text);
+        /// <summary>
+        /// PrintColor c зелёным цветом фона
+        /// </summary>
+        /// <param name="text">текст</param>
+        public static void PrintMessage(string text) => PrintColor(text, ConsoleColor.White, ConsoleColor.DarkGreen);
+        /// <summary>
+        /// PrintColor c жёлтым цветом фона и белым текстом
+        /// </summary>
+        /// <param name="text">текст</param>
+        public static void PrintWarning(string text) => PrintColor(text, ConsoleColor.White, ConsoleColor.DarkYellow);
+        /// <summary>
+        /// PrintColor c красным цветом фона и белым текстом
+        /// </summary>
+        /// <param name="text">текст</param>
+        public static void PrintError(string text) => PrintColor(text, ConsoleColor.White, ConsoleColor.DarkRed);
+        /// <summary>
+        /// Console.WriteLine с указанием позиции и белым текстом
+        /// </summary>
+        /// <param name="text">текст</param>
+        /// <param name="x">x</param>
+        /// <param name="y">y</param>
         public static void PrintAtPoint(string text, int x, int y)
         {
             Console.SetCursorPosition(x, y);
