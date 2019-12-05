@@ -89,18 +89,18 @@ namespace BattleToad.RosSvyaz
         /// </summary>
         /// <param name="filter">фильтр по содержится без учета регистра</param>
         /// <returns></returns>
-        public string[] GetRegionsByFilter(string filter = "")
+        public string[] GetRegionsList()
         {
-            return Items.Select(x => $"{x.Region}").Where(x => x.ToLower().Contains(filter)).Distinct().ToArray();
+            return Items.Select(x => $"{x.Region}").Distinct().ToArray();
         }
         /// <summary>
         /// Получить список операторов
         /// </summary>
         /// <param name="filter">фильтр по содержится без учета регистра</param>
         /// <returns></returns>
-        public string[] GetOperatorsByFilter(string region, string filter = "")
+        public string[] GetOperatorsList(string filter = "")
         {
-            return Items.Where(x => x.Operator.ToLower().Contains(filter) && x.Region == region).Select(x => $"{x.Operator}").Distinct().ToArray();
+            return Items.Select(x => x.Operator).Distinct().ToArray();
         }
 
         public string GetOperatorByNumber(string number)
@@ -113,6 +113,17 @@ namespace BattleToad.RosSvyaz
         {
             Record record = GetByNumber(number);
             return record == null ? null : record.Operator;
+        }
+
+        public Record[] GetRecords(string operator_name, string region_name)
+        {
+            if (operator_name == "" && region_name == "") 
+                return Items.ToArray();
+            if (operator_name != "" && region_name == "")
+                return Items.Where(x => x.Operator != operator_name).ToArray();
+            if (operator_name == "" && region_name != "")
+                return Items.Where(x => x.Region == region_name).ToArray();
+            return Items.Where(x => x.Operator != operator_name && x.Region == region_name).ToArray();
         }
 
         public void Dispose()
