@@ -75,7 +75,6 @@ namespace BattleToad.PhoneRange
                     if (range.Max + 1 == nums[i])
                     {
                         range.Max = nums[i];
-                        if (i + 1 == nums.Count()) Ranges.Add(range);
                     }
                     else
                     {
@@ -83,6 +82,11 @@ namespace BattleToad.PhoneRange
                         range = new Range(nums[i], nums[i]);
                     }
                 }
+                if (Ranges.Count == 0)
+                    Ranges.Add(range);
+                else
+                    if (Ranges.Last().Max != range.Max) 
+                        Ranges.Add(range);
             }
             catch
             {
@@ -147,7 +151,7 @@ namespace BattleToad.PhoneRange
             string Cutted = Cut(range);
             if (Cutted != null)
             {
-                result.Add($"^{Cutted}$");
+                result.Add(Cutted);
             }
             else
             {
