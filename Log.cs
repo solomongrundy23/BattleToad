@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using BattleToad.Ext;
 
 namespace BattleToad.Log
@@ -16,18 +17,18 @@ namespace BattleToad.Log
         public Logging(string log_filename = "log.txt") => LogStream = new Log(log_filename);
         public Logging(Log log) => LogStream = log;
         public Log LogStream;
-        public virtual void ToLog(string title = "", bool private_data = false, bool data_type = false) 
-            => this.LogClass(LogStream, title, private_data, data_type);
-        private bool disposedValue = false;
+        public virtual void ToLog()
+            => this.LogClass(LogStream);
+        public bool Disposed = false;
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!Disposed)
             {
                 if (disposing)
                 {
-                    LogStream.Dispose();
+                    if (LogStream != null) LogStream.Dispose();
                 }
-                disposedValue = true;
+                Disposed = true;
             }
         }
         ~Logging()
@@ -77,7 +78,7 @@ namespace BattleToad.Log
         /// <param name="args"></param>
         public void EventToLog(object sender, EventArgs args)
             => Write($"Event:\r\nSender:{sender.PrintClassValues().ToText()}\r\nArgs:\r\n{args.PrintClassValues().ToText()}");
-        private bool disposed = false;
+        public bool Disposed = false;
         /// <summary>
         /// Убить экземпляр класса, а что он тебе сделал?
         /// </summary>
@@ -86,30 +87,35 @@ namespace BattleToad.Log
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        protected virtual void Dispose(bool disposing)
+        protected async void Dispose(bool disposing)
         {
             if (WritterThread.IsAlive) WritterThread.Abort();
-            while (LogList.Count() > 0)
             {
-                if (LogList.TryDequeue(out string log_string))
+                await Task.Run(() =>
                 {
-                    try
+                    while (LogList.Count() > 0)
                     {
-                        File.AppendAllText(FileName, log_string);
+                        if (LogList.TryDequeue(out string log_string))
+                        {
+                            try
+                            {
+                                File.AppendAllText(FileName, log_string);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new Exception($"Ошибка логирования - {ex.Message}");
+                            }
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Ошибка логирования - {ex.Message}");
-                    }
-                }
+                });
             }
-            if (!disposed)
+            if (!Disposed)
             {
                 if (disposing)
                 {
                     WritterThread.Abort();
                 }
-                disposed = true;
+                Disposed = true;
             }
         }
         ~Log()
@@ -117,7 +123,7 @@ namespace BattleToad.Log
             Dispose(false);
         }
         private readonly string FileName;
-        private Thread WritterThread;
+        private readonly Thread WritterThread;
         private readonly ConcurrentQueue<string> LogList = new ConcurrentQueue<string>();
         /// <summary>
         /// Создать логирование
