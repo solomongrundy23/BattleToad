@@ -27,12 +27,29 @@ namespace BattleToad.Ext
         {
         }
         /// <summary>
+        /// Создать экземпляр Strings
+        /// </summary>
+        /// <param name="FromArray">Добавить массив строк при создании</param>
+        public Strings(string[] FromArray)
+        {
+            this.AddRange(FromArray);
+        }
+        /// <summary>
         /// Создать экземпляр Strings, загрузив из файла
         /// </summary>
         /// <param name="FileName">Имя файла</param>
         public Strings(string FileName)
         {
             FromFile(FileName);
+        }
+        /// <summary>
+        /// Оставить только уникальные значения
+        /// </summary>
+        public void JustUnique()
+        {
+            IEnumerable<string> temp = this.Distinct();
+            this.Clear();
+            this.AddRange(temp);
         }
         /// <summary>
         /// Загрузить из файла
@@ -178,6 +195,13 @@ namespace BattleToad.Ext
         /// <returns></returns>
         public static Strings ToStrings(this List<string> YourList)
             => YourList.ToArray().ToStrings();
+        /// <summary>
+        /// Перевести в Strings
+        /// </summary>
+        /// <param name="YourIEnumerable"></param>
+        /// <returns></returns>
+        public static Strings ToStrings(this IEnumerable<string> YourIEnumerable)
+            => YourIEnumerable.ToArray().ToStrings();
         //String
         /// <summary>
         /// Быстро и безболезнено перевести в int
@@ -422,137 +446,6 @@ namespace BattleToad.Ext
         /// <returns></returns>
         public static string[] PrintClassValues<T>(this T obj, bool ShowPrivate = false, bool ShowTypes = false)
             => Addons.PrintValuesInClass<T>(obj, ShowPrivate, ShowTypes);
-        /// <summary>
-        /// Записать данные класса в лог(класс Log)
-        /// </summary>
-        /// <typeparam name="T">тип</typeparam>
-        /// <param name="obj">объект</param>
-        /// <param name="log">экземпляр класса Log</param>
-        /// <param name="title">название записи</param>
-        /// <param name="private_data">отображать приватные данные</param>
-        /// <param name="data_type">отображать тип данных</param>
-        public static void LogClass<T>(this T obj, Log log, string title = "", bool private_data = false, bool data_type = false)
-        {
-            log.WriteClass(obj, title, private_data, data_type);
-        }
-    }
-
-    /// <summary>
-    /// Класс для логирования
-    /// </summary>
-    public class Log : IDisposable
-    {
-        private bool disposed = false;
-        /// <summary>
-        /// Убить экземпляр класса, а что он тебе сделал?
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        protected virtual void Dispose(bool disposing)
-        {
-            if (WritterThread.IsAlive) WritterThread.Abort();
-            while (LogList.Count > 0)
-            {
-                if (LogList.TryDequeue(out string log_string))
-                {
-                    try
-                    {
-                        File.AppendAllText(FileName, log_string);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Ошибка логирования - {ex.Message}");
-                    }
-                }
-            }
-            if (!disposed)
-            {
-                if (disposing)
-                {
-                    WritterThread.Abort();
-                }
-                disposed = true;
-            }
-        }
-        ~Log()
-        {
-            Dispose(false);
-        }
-        private readonly string FileName;
-        private Thread WritterThread;
-        private readonly ConcurrentQueue<string> LogList = new ConcurrentQueue<string>();
-        /// <summary>
-        /// Создать логирование
-        /// </summary>
-        /// <param name="LogFile">путь к файлу лога</param>
-        public Log(string LogFile = "log.txt")
-        {
-            FileName = LogFile;
-            WritterThread = new Thread(Writter)
-            {
-                IsBackground = true
-            };
-            WritterThread.Start();
-        }
-        private void WriteLog(string log) => LogList.Enqueue(log);
-        private void Writter()
-        {
-            while (true)
-            {
-                if (LogList.TryDequeue(out string log_string))
-                {
-                    try
-                    {
-                        File.AppendAllText(FileName, log_string);
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception($"Ошибка логирования - {ex.Message}");
-                    }
-                }
-            }
-        }
-        private string LogString(string log, string title = "")
-            => $"{Addons.GetNow()}: {title}{Environment.NewLine}{log}{Environment.NewLine}{Environment.NewLine}";
-        /// <summary>
-        /// Записать строку в лог
-        /// </summary>
-        /// <param name="log">данные для лога</param>
-        ///<param name="title">название записи для лога</param>
-        public void Write(string log, string title = "")
-        {
-            WriteLog(LogString(log));
-        }
-        /// <summary>
-        /// Записать массив строк в лог
-        /// </summary>
-        /// <param name="log">массив данных для лога</param>
-        ///<param name="title">название записи для лога</param>
-        public void Write(string[] log, string title = "")
-        {
-            Write(log.ToText(), title);
-        }
-        /// <summary>
-        /// Записать список строк в лог
-        /// </summary>
-        /// <param name="log">список данных для лога</param>
-        ///<param name="title">название записи для лога</param>
-        public void Write(List<string> log, string title = "")
-        {
-            Write(log.ToText());
-        }
-        /// <summary>
-        /// Записать значение класса
-        /// </summary>
-        /// <typeparam name="T">класс</typeparam>
-        /// <param name="obj">объект</param>
-        public void WriteClass<T>(T obj, string title = "", bool private_data = false, bool data_type = false)
-        {
-            Write(obj.PrintClassValues(private_data, data_type).ToText(), title);
-        }
     }
     /// <summary>
     /// Класс для упрощения работы с хэшированием
@@ -946,13 +839,50 @@ namespace BattleToad.Ext
             if (cha.Count == 11) cha.RemoveAt(0);
             return $"{prefix}{string.Join("", cha)}";
         }
+
+        public static class Mask
+        {
+            /// <summary>
+            /// Пример: 79123456789
+            /// </summary>
+            public static string E164 = @"^7\d{10}$";
+            /// <summary>
+            /// Пример: 89123456789
+            /// </summary>
+            public static string National = @"^8\d{10}$";
+            /// <summary>
+            /// Пример: +79123456789
+            /// </summary>
+            public static string Mobile = @"^\+7\d{10}$";
+            /// <summary>
+            /// Примеры: 79123456789, 89123456789, +79123456789
+            /// </summary>
+            public static string Simple = @"^((\+7)|7|8)\d{10}$";
+            /// <summary>
+            /// Примеры: 7(912)3456789, 8(912)3456789, +7(912)3456789
+            /// </summary>
+            public static string ForPrint = @"^((\+7)|7|8)\(\d\d\d\)\d\d\d\d\d\d\d$";
+            /// <summary>
+            /// Примеры: 7(912)345-67-89, 8(912)345-67-89, +7(912)345-67-89
+            /// </summary>
+            public static string ForPrintWithMinus1 = @"^((\+7)|7|8)\(\d\d\d\)\d\d\d-\d\d-\d\d$";
+            /// <summary>
+            /// Примеры: 7(912)345-6789, 8(912)345-6789, +7(912)345-6789
+            /// </summary>
+            public static string ForPrintWithMinus2 = @"^((\+7)|7|8)\(\d\d\d\)\d\d\d-\d\d\d\d$";
+        }
+        /// <summary>
+        /// Проверить, является ли строка телефонным номеров по указанной маске
+        /// </summary>
+        /// <param name="number">номер телефона</param>
+        /// <param name="mask">маска, регулярное выражение, можно взять из класса Mask или написать свое выражение</param>
+        public static bool IsPhoneMask(string number, string mask) => Regex.IsMatch(number, mask);
         /// <summary>
         /// Проверить, является ли строка телефонным номеров
         /// </summary>
         /// <param name="number">номер телефона</param>
         public static bool IsPhoneNumber(string number)
         {
-            number = Regex.Replace(number, @"[\(\)-]", "");
             return
                 (
                 Regex.IsMatch(number, @"^((\+7)|7|8)\d{10}$")
