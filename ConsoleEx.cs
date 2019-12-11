@@ -27,6 +27,16 @@ namespace BattleToad.ConsoleAddons
             data = Console.ReadLine();
         }
         /// <summary>
+        /// Вывести текст и считать переменную из консоли
+        /// </summary>
+        /// <param name="label">текст</param>
+        /// <param name="data">переменная</param>
+        public static void Input(string label, out int data)
+        {
+            Console.Write(label);
+            data = int.Parse(Console.ReadLine());
+        }
+        /// <summary>
         /// Вывести текст в цикле
         /// </summary>
         /// <param name="repeat">количество повторов</param>

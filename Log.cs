@@ -8,6 +8,39 @@ using BattleToad.Ext;
 
 namespace BattleToad.Log
 {
+    /// <summary>
+    /// Абстрактный класс для логирования
+    /// </summary>
+    public class Logging: IDisposable
+    {
+        public Logging(string log_filename = "log.txt") => LogStream = new Log(log_filename);
+        public Logging(Log log) => LogStream = log;
+        public Log LogStream;
+        public virtual void ToLog(string title = "", bool private_data = false, bool data_type = false) 
+            => this.LogClass(LogStream, title, private_data, data_type);
+        private bool disposedValue = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    LogStream.Dispose();
+                }
+                disposedValue = true;
+            }
+        }
+        ~Logging()
+        {
+            Dispose(false);
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+    }
+
     public static class LogExtensions
     {
         /// <summary>
