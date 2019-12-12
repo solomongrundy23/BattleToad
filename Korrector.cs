@@ -4,22 +4,23 @@ using System.Timers;
 class Korrector: IDisposable
 {
     private readonly Timer timer = new Timer();
-    public int TypeOfAutoClearing = 0;
-    public double MaxGarbage = 0;
-    public static class Type
+    public int ClearingLevel = 0;
+    public readonly double MaxGarbage = 0;
+    private int maxClearingLevel;
+    public int MaxClearingLevel
     {
-        public static int Lite = 0;
-        public static int Normal = 1;
-        public static int Strong = 2;
+        get => maxClearingLevel;
+        set => maxClearingLevel = 
+            (MaxClearingLevel > GC.MaxGeneration) ? GC.MaxGeneration : value;
     }
     public bool Enabled
     {
         get => timer.Enabled;
         set => timer.Enabled = value;
     }
-
-    public Korrector(double interval_ms, double max_garbage = 0)
+    public Korrector(double interval_ms, int level = 0, double max_garbage = 0)
     {
+        MaxClearingLevel = level;
         MaxGarbage = max_garbage;
         timer.Elapsed += TimerTick;
         timer.Interval = interval_ms;
@@ -34,12 +35,12 @@ class Korrector: IDisposable
     private void TimerTick(object sender, EventArgs args)
     {
         if (MaxGarbage == 0)
-            GC.Collect(TypeOfAutoClearing);
+            GC.Collect(ClearingLevel);
         else
         {
             if (MaxGarbage < GC.GetTotalMemory(true))
             {
-                GC.Collect(TypeOfAutoClearing);
+                GC.Collect(ClearingLevel);
             }
         }
     }

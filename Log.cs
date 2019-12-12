@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using BattleToad.Ext;
@@ -14,7 +15,8 @@ namespace BattleToad.Log
     /// </summary>
     public class Logging: IDisposable
     {
-        public Logging(string log_filename = "log.txt") => LogStream = new Log(log_filename);
+        public Logging(string log_filename = "log.txt") 
+            => LogStream = new Log(log_filename);
         public Logging(Log log) => LogStream = log;
         public Log LogStream;
         public virtual void ToLog()
@@ -42,6 +44,9 @@ namespace BattleToad.Log
         }
     }
 
+    /// <summary>
+    /// Расширения для логирования
+    /// </summary>
     public static class LogExtensions
     {
         /// <summary>
@@ -71,6 +76,34 @@ namespace BattleToad.Log
     /// </summary>
     public class Log : IDisposable
     {
+        private struct Record
+        {
+            public Record(string time, string title, string data)
+            {
+                Time = time;
+                Title = title;
+                Data = data;
+            }
+            public string Time;
+            public string Title;
+            public string Data;
+            public string String
+            {
+                get 
+                {
+                    var result = new StringBuilder();
+                    result.Append(Time);
+                    if (Title != "") result.Append(Environment.NewLine + Title);
+                    result.AppendLine(":");
+                    string[] data_recs = Data.GetLines();
+                    result.AppendLine("--BEGIN--");
+                    result.Append(Addons.Decor(Data, 128, "         "));
+                    result.AppendLine("---END---");
+                    result.AppendLine();
+                    return result.ToString();
+                }
+            }
+        }
         /// <summary>
         /// Записать событие в лог
         /// </summary>
@@ -95,11 +128,11 @@ namespace BattleToad.Log
                 {
                     while (LogList.Count() > 0)
                     {
-                        if (LogList.TryDequeue(out string log_string))
+                        if (LogList.TryDequeue(out Record log_string))
                         {
                             try
                             {
-                                File.AppendAllText(FileName, log_string);
+                                File.AppendAllText(FileName, log_string.String);
                             }
                             catch (Exception ex)
                             {
@@ -124,7 +157,7 @@ namespace BattleToad.Log
         }
         private readonly string FileName;
         private readonly Thread WritterThread;
-        private readonly ConcurrentQueue<string> LogList = new ConcurrentQueue<string>();
+        private readonly ConcurrentQueue<Record> LogList = new ConcurrentQueue<Record>();
         /// <summary>
         /// Создать логирование
         /// </summary>
@@ -138,16 +171,16 @@ namespace BattleToad.Log
             };
             WritterThread.Start();
         }
-        private void WriteLog(string log) => LogList.Enqueue(log);
+        private void WriteLog(Record log) => LogList.Enqueue(log);
         private void Writter()
         {
             while (true)
             {
-                if (LogList.TryDequeue(out string log_string))
+                if (LogList.TryDequeue(out Record log_string))
                 {
                     try
                     {
-                        File.AppendAllText(FileName, log_string);
+                        File.AppendAllText(FileName, log_string.String);
                     }
                     catch (Exception ex)
                     {
@@ -156,8 +189,6 @@ namespace BattleToad.Log
                 }
             }
         }
-        private string LogString(string log, string title = "")
-            => $"{Addons.GetNow()}: {title}{Environment.NewLine}{log}{Environment.NewLine}{Environment.NewLine}";
         /// <summary>
         /// Записать строку в лог
         /// </summary>
@@ -165,7 +196,12 @@ namespace BattleToad.Log
         ///<param name="title">название записи для лога</param>
         public void Write(string log, string title = "")
         {
-            WriteLog(LogString(log));
+            WriteLog(new Record() 
+            { 
+                Time = Addons.GetNow(), 
+                Title = title, 
+                Data = log}
+            );
         }
         /// <summary>
         /// Записать массив строк в лог

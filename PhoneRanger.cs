@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using BattleToad.Ext;
 
 namespace BattleToad.PhoneRange
@@ -40,9 +37,16 @@ namespace BattleToad.PhoneRange
     public class PhoneRanger : IDisposable
     {
         /// <summary>
+        /// Определяет, будет ли производится автоматически сборка мусора
+        /// </summary>
+        public bool AutoGarbageCollector = true;
+        /// <summary>
         /// Запуск GarbageCollector
         /// </summary>
-        public void Garbage() => GC.Collect(GC.MaxGeneration);
+        private void Garbage()
+        {
+            if (AutoGarbageCollector) GC.Collect(GC.MaxGeneration); 
+        }
         /// <summary>
         /// Список диапозонов, при добавлении диапозонов вручную нужно обеспечивать праверку правильности заполнения диапозонами номера
         /// </summary>
@@ -85,8 +89,8 @@ namespace BattleToad.PhoneRange
                 if (Ranges.Count == 0)
                     Ranges.Add(range);
                 else
-                    if (Ranges.Last().Max != range.Max) 
-                        Ranges.Add(range);
+                    if (Ranges.Last().Max != range.Max)
+                    Ranges.Add(range);
             }
             catch
             {
@@ -96,6 +100,33 @@ namespace BattleToad.PhoneRange
             {
                 Garbage();
             }
+        }
+        public void Sort()
+        {
+            Ranges = Ranges.OrderBy(x => x.Min).ThenBy(x => x.Max).ToList();
+            Garbage();
+        }
+        public void Merge()
+        {
+            if (Ranges.Count() == 0) return;
+            var range = Ranges[0];
+            for (int i = 1; i < Ranges.Count(); i++)
+            {
+                if (range.Max + 1 == Ranges[i].Min)
+                {
+                    range.Max = Ranges[i].Max;
+                }
+                else
+                {
+                    Ranges.Add(range);
+                    range = Ranges[i];
+                }
+            }
+            if (Ranges.Count == 0)
+                Ranges.Add(range);
+            else
+                if (Ranges.Last().Max != range.Max)
+                Ranges.Add(range);
         }
         /// <summary>
         /// Разбить диапозоны на список
@@ -227,7 +258,7 @@ namespace BattleToad.PhoneRange
         {
             while (start <= end)
             {
-                UInt64 mask = 0, pow = 0;
+                ulong mask = 0, pow = 0;
                 for (int i = 0; ; i++)
                 {
                     pow = (uint)Math.Pow(10, 7 - i);

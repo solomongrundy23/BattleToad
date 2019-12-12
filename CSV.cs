@@ -10,13 +10,24 @@ namespace BattleToad.CSV
     public class CSV : IDisposable
     {
         /// <summary>
+        /// Включать ли сборку мусора
+        /// </summary>
+        public bool AutoGarbageRemove;
+        private void RemoveGarbage()
+        {
+            if (AutoGarbageRemove) GC.Collect(GC.MaxGeneration);
+        }
+        /// <summary>
         /// Создать экземплер
         /// </summary>
-        /// <param name="split_char"></param>
-        /// <param name="quotes"></param>
-        /// <param name="null_Text"></param>
-        public CSV(char split_char = '\t', char? quotes = null, string null_Text = null)
+        /// <param name="split_char">Разделитель</param>
+        /// <param name="autoGarbageRemove">Включать ли сборку мусора</param>
+        /// <param name="quotes">Одинарные или двойные кавычки, null - нет</param>
+        /// <param name="null_Text">Замена пустых значений</param>
+        public CSV(char split_char = '\t', bool autoGarbageRemove = false, 
+                   char? quotes = null, string null_Text = null)
         {
+            AutoGarbageRemove = autoGarbageRemove;
             Quotes = quotes;
             SplitChar = split_char;
             Null_Text = null_Text;
@@ -82,6 +93,10 @@ namespace BattleToad.CSV
             {
                 throw new Exception($"Ошибка загрузки CSV-файла. {ex.Message}");
             }
+            finally
+            {
+                RemoveGarbage();
+            }
         }
         /// <summary>
         /// Сохранить данные CSV в файл
@@ -103,6 +118,10 @@ namespace BattleToad.CSV
             catch (Exception ex)
             {
                 throw new Exception($"Ошибка  CSV-файла. {ex.Message}");
+            }
+            finally
+            {
+                RemoveGarbage();
             }
         }
         /// <summary>
@@ -138,8 +157,7 @@ namespace BattleToad.CSV
         public void Dispose()
         {
             Data = null;
-            GC.SuppressFinalize(this);
-            GC.Collect();
+            RemoveGarbage();
             GC.WaitForPendingFinalizers();
         }
     }

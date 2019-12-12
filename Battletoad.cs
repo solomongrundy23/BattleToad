@@ -11,7 +11,6 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Threading.Tasks;
-using System.Threading;
 
 namespace BattleToad.Ext
 {
@@ -543,6 +542,35 @@ namespace BattleToad.Ext
         {
             DateTime.TryParse($"{Day}.{Month}.{Year}", out DateTime result);
             return result;
+        }
+
+        public static string Decor(string text, int max_line_length = 1024, string indent = "")
+        {
+            if (max_line_length <= indent.Length) throw new Exception("Максимальная длина не может быть меньше длины отступа");
+            max_line_length -= indent.Length;
+            var result = new StringBuilder();
+            string[] records = text.GetLines();
+            for (int i = 0; i < records.Length; i++)
+                while (records[i] != string.Empty)
+                    result.AppendLine($"{indent}{CutSubstring(ref records[i], max_line_length)}");
+            return result.ToString();
+        }
+
+        public static string CutSubstring(ref string str, int length, int start = 0)
+        {
+            if (start > str.Length)
+            {
+                throw new Exception("Позиция больше длины строки");
+            }
+            else
+            {
+                string result = str.Substring(start, length + start > str.Length ? str.Length - start : length );
+                string temp = "";
+                if (start > 0) temp += str.Substring(0, start);
+                if (length + start < str.Length) temp += str.Substring(length + start, str.Length - length - start);
+                str = temp;
+                return result;
+            }
         }
 
         /// <summary>
