@@ -10,7 +10,7 @@ class Korrector: IDisposable
     public int MaxClearingLevel
     {
         get => maxClearingLevel;
-        set => maxClearingLevel = 
+        set => maxClearingLevel =
             (MaxClearingLevel > GC.MaxGeneration) ? GC.MaxGeneration : value;
     }
     public bool Enabled

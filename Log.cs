@@ -11,40 +11,6 @@ using BattleToad.Ext;
 namespace BattleToad.Log
 {
     /// <summary>
-    /// Абстрактный класс для логирования
-    /// </summary>
-    public class Logging: IDisposable
-    {
-        public Logging(string log_filename = "log.txt") 
-            => LogStream = new Log(log_filename);
-        public Logging(Log log) => LogStream = log;
-        public Log LogStream;
-        public virtual void ToLog()
-            => this.LogClass(LogStream);
-        public bool Disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!Disposed)
-            {
-                if (disposing)
-                {
-                    if (LogStream != null) LogStream.Dispose();
-                }
-                Disposed = true;
-            }
-        }
-        ~Logging()
-        {
-            Dispose(false);
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-    }
-
-    /// <summary>
     /// Расширения для логирования
     /// </summary>
     public static class LogExtensions
@@ -76,6 +42,16 @@ namespace BattleToad.Log
     /// </summary>
     public class Log : IDisposable
     {
+        public bool Enabled = true;
+        private static Log instance;
+        public static Log GetInstance
+        {
+            get
+            {
+                if (instance.Null()) instance = new Log();
+                return instance;
+            }
+        }
         private struct Record
         {
             public Record(string time, string title, string data)
@@ -122,6 +98,7 @@ namespace BattleToad.Log
         }
         protected async void Dispose(bool disposing)
         {
+            instance = null;
             if (WritterThread.IsAlive) WritterThread.Abort();
             {
                 await Task.Run(() =>
@@ -196,6 +173,7 @@ namespace BattleToad.Log
         ///<param name="title">название записи для лога</param>
         public void Write(string log, string title = "")
         {
+            if (Enabled)
             WriteLog(new Record() 
             { 
                 Time = Addons.GetNow(), 

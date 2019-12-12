@@ -583,7 +583,7 @@ namespace BattleToad.Ext
         {
             try
             {
-                if (end == null) end = DateTime.Now;
+                end = end ?? DateTime.Now;
                 DateTime dt1 = new DateTime(start.Year, start.Month, start.Day);
                 DateTime dt2 = new DateTime(end.Value.Year, end.Value.Month, end.Value.Day);
 
