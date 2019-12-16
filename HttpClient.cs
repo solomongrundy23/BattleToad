@@ -54,16 +54,13 @@ namespace BattleToad.FastHttpClient
         /// <summary>
         /// Получить Код, Текст ошибки и Ответ в виде строки, например, для логирования
         /// </summary>
-        public string GetString
+        public override string ToString()
         {
-            get
-            {
-                StringBuilder stringBuilder = new StringBuilder();
-                if (StatusCode != 0) stringBuilder.AppendLine($"Код: {StatusCodeString}");
-                if (Error != null) stringBuilder.AppendLine($"Ошибка: {Error}");
-                if (ResponseString != null) stringBuilder.AppendLine($"Ответ: {ResponseString}");
-                return stringBuilder.ToString();
-            }
+            StringBuilder stringBuilder = new StringBuilder();
+            if (StatusCode != 0) stringBuilder.AppendLine($"Код: {StatusCodeString}");
+            if (Error != null) stringBuilder.AppendLine($"Ошибка: {Error}");
+            if (ResponseString != null) stringBuilder.AppendLine($"Ответ: {ResponseString}");
+            return stringBuilder.ToString();
         }
     }
     public class ResponseBytes
