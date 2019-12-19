@@ -42,6 +42,32 @@ namespace BattleToad.Ext
             FromFile(FileName);
         }
         /// <summary>
+        /// Преобразовать в очередь(Queue)
+        /// </summary>
+        /// <returns></returns>
+        public Queue<string> ToQueue()
+        {
+            var result = new Queue<string>();
+            foreach (string str in this)
+            {
+                result.Enqueue(str);
+            }
+            return result;
+        }
+        /// <summary>
+        /// Преобразовать в кучу(Stack)
+        /// </summary>
+        /// <returns></returns>
+        public Stack<string> ToStack()
+        {
+            var result = new Stack<string>();
+            foreach (string str in this)
+            {
+                result.Push(str);
+            }
+            return result;
+        }
+        /// <summary>
         /// Оставить только уникальные значения
         /// </summary>
         public void JustUnique()
