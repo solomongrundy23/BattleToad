@@ -101,32 +101,51 @@ namespace BattleToad.PhoneRange
                 Garbage();
             }
         }
+        /// <summary>
+        /// Сортировка списка диапозонов по минимумам, а затем по максимумам
+        /// </summary>
         public void Sort()
         {
             Ranges = Ranges.OrderBy(x => x.Min).ThenBy(x => x.Max).ToList();
             Garbage();
         }
+        /// <summary>
+        /// Обединить близкие диапозоны
+        /// </summary>
         public void Merge()
         {
             if (Ranges.Count() == 0) return;
-            var range = Ranges[0];
-            for (int i = 1; i < Ranges.Count(); i++)
+            try
             {
-                if (range.Max + 1 == Ranges[i].Min)
+                var Temp = Ranges.OrderBy(x => x.Min).ThenBy(x => x.Max).ToList();
+                Ranges.Clear();
+                var range = Temp[0];
+                for (int i = 1; i < Temp.Count(); i++)
                 {
-                    range.Max = Ranges[i].Max;
+                    if (Temp[i].Min > range.Min && Temp[i].Max < range.Max) continue;
+                    if (
+                        (range.Max + 1 == Temp[i].Min) ||
+                        (Temp[i].Min > range.Min && Temp[i].Max >= range.Max)
+                       )
+                    {
+                        range.Max = Temp[i].Max;
+                    }
+                    else
+                    {
+                        Ranges.Add(range);
+                        range = Temp[i];
+                    }
                 }
-                else
-                {
+                if (Temp.Count == 0)
                     Ranges.Add(range);
-                    range = Ranges[i];
-                }
+                else
+                    if (Ranges.Last().Max != range.Max)
+                    Ranges.Add(range);
             }
-            if (Ranges.Count == 0)
-                Ranges.Add(range);
-            else
-                if (Ranges.Last().Max != range.Max)
-                Ranges.Add(range);
+            finally
+            {
+                Garbage();
+            }
         }
         /// <summary>
         /// Разбить диапозоны на список

@@ -37,10 +37,30 @@ namespace BattleToad.Ext
         /// Создать экземпляр Strings, загрузив из файла
         /// </summary>
         /// <param name="FileName">Имя файла</param>
-        public Strings(string FileName)
+        public Strings(string FileName, bool Empty_Strings)
+            => FromFile(FileName, Empty_Strings);
+        /// <summary>
+        /// Получить список массивов строк разделив строки символом-разделителем
+        /// </summary>
+        /// <param name="splitter">разделитель</param>
+        /// <returns>список массивов разделенных строк</returns>
+        public List<string[]> SplitLines(char splitter = '\t')
+            => this.Select(x => x.Split(splitter)).ToList();
+        /// <summary>
+        /// Получить список массивов строк разделив строки массивом строк-разделителей
+        /// </summary>
+        /// <param name="splitters">массив строк разделителей</param>
+        /// <returns>список массивов разделенных строк</returns>
+        public List<string[]> SplitLines(string[] splitters, StringSplitOptions options)
+            => this.Select(x => x.Split(splitters, options)).ToList();
+        /// <summary>
+        /// Удалить пустые строки
+        /// </summary>
+        public void RemoveEmpty()
         {
-            FromFile(FileName);
+            this.Remove("");
         }
+        public override string ToString() => this.ToText();
         /// <summary>
         /// Преобразовать в очередь(Queue)
         /// </summary>
@@ -113,6 +133,13 @@ namespace BattleToad.Ext
             }
         }
         /// <summary>
+        /// Получить строки удовлетворяющих регулярному выражению
+        /// </summary>
+        /// <param name="matcher"></param>
+        /// <returns></returns>
+        public string[] GetLinesFromRegex(string matcher)
+            => this.Where(x => x.IsRegexMatch(matcher)).ToArray();
+        /// <summary>
         /// Дописать строки в конец файла
         /// </summary>
         /// <param name="FileName">Имя файла</param>
@@ -127,6 +154,50 @@ namespace BattleToad.Ext
                 throw new Exception($"Ошибка сохранения файла: {ex.Message}");
             }
         }
+        /// <summary>
+        /// Перемешать строки в случайном порядке
+        /// </summary>
+        public void Shuffle()
+        {
+            var temp = new List<string>();
+            temp.AddRange(this);
+            this.Clear();
+            var rnd = new Random();
+            while (temp.Count > 0)
+            {
+                int r = rnd.Next(temp.Count);
+                this.Add(temp[r]);
+                temp.RemoveAt(r);
+            }
+        }
+        /// <summary>
+        /// Получить и удалить строку по индексу
+        /// </summary>
+        /// <param name="index">индекс строки</param>
+        /// <returns></returns>
+        public string Extract(int index)
+        {
+            try
+            {
+                string result = this[index];
+                this.RemoveAt(index);
+                return result;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        /// <summary>
+        /// Получить и удалить первую строку
+        /// </summary>
+        /// <returns></returns>
+        public string ExtractFirst() => Extract(0);
+        /// <summary>
+        /// Получить и удалить последнюю строку
+        /// </summary>
+        /// <returns></returns>
+        public string ExtractLast() => Extract(this.Count - 1);
         public static Strings operator +(Strings a, IEnumerable<string> b)
         {
             Strings result = new Strings();
