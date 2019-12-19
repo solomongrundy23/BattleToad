@@ -172,9 +172,36 @@ namespace BattleToad.Ext
     /// Цивилизованная многопоточная очередь
     /// </summary>
     public class CivilizedQueue : ConcurrentQueue<string> { }
-
+    /// <summary>
+    /// Расширения для различных классов
+    /// </summary>
     public static class Extensions
     {
+        /// <summary>
+        /// Распарсить дату и время
+        /// </summary>
+        /// <param name="str">строка</param>
+        /// <returns>DateTime, null - при неуспешной операции</returns>
+        public static DateTime? DateTimeParse(string str)
+        {
+            if (DateTime.TryParse(str, out DateTime date))
+            {
+                return date;
+            }
+            else
+                return null;
+        }
+        /// <summary>
+        /// Получить n символов с конца строки
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <param name="length">количество символов с конца</param>
+        /// <returns></returns>
+        public static string SubStringFromEnd(this string text, int length)
+        {
+            if (text.Length < length) throw new Exception("Длина подстроки не может быть больше искомой");
+            return text.Substring(text.Length - length);
+        }
         /// <summary>
         /// Добавить в начало и конец строки строки
         /// </summary>
@@ -425,8 +452,10 @@ namespace BattleToad.Ext
         /// <param name="dictionary">словарь</param>
         /// <param name="KeyValueSplitter">символ(ы) для стыковки</param>
         /// <returns></returns>
-        public static string ToText<K, V>(this Dictionary<K, V> dictionary, string KeyValueSplitter = "\t")
-            => string.Join(Environment.NewLine, dictionary.Select(x => $"{x.Key}{KeyValueSplitter}{x.Value}").ToArray());
+        public static string ToText<K, V>(this Dictionary<K, V> dictionary, 
+            string KeyValueSplitter = "\t")
+            => string.Join(Environment.NewLine, 
+                dictionary.Select(x => $"{x.Key}{KeyValueSplitter}{x.Value}").ToArray());
 
         //<T>
         /// <summary>
@@ -435,8 +464,13 @@ namespace BattleToad.Ext
         /// <param name="value">пересенная</param>
         /// <param name="key">указать имя переменной</param>
         /// <returns></returns>
-        public static string PrintValue<T>(this T value, string key = "value")
-            => $"{key}=\"{value}\"";
+        public static string PrintValue<T>(this T value, string key = "value", 
+            bool multi_line_value = false)
+            => 
+            multi_line_value ? 
+            $"{key}=\"{Environment.NewLine}{value}{Environment.NewLine}\""
+            :
+            $"{key}=\"{value}\"";
         /// <summary>
         /// Вывести значение c типом переменной
         /// </summary>
@@ -452,7 +486,8 @@ namespace BattleToad.Ext
         /// <param name="ShowPrivate">отображать приватные</param>
         /// <param name="ShowTypes">отображать тип переменных</param>
         /// <returns></returns>
-        public static string[] PrintClassValues<T>(this T obj, bool ShowPrivate = false, bool ShowTypes = false)
+        public static string[] PrintClassValues<T>(this T obj, bool ShowPrivate = false, 
+            bool ShowTypes = false)
             => Addons.PrintValuesInClass<T>(obj, ShowPrivate, ShowTypes);
     }
     /// <summary>
@@ -541,31 +576,57 @@ namespace BattleToad.Ext
     /// </summary>
     public static class Addons
     {
-        public static DateTime GetDateFromDayMonthYear(int Day, int Month, int Year)
+        /// <summary>
+        /// Проверить, совпадает ли строка с маской даты 31.12.2019, где день 00-31, месяц 01-12, год 1900-2199
+        /// </summary>
+        /// <param name="str">проверяемая строка</param>
+        /// <returns>true, если совпадает, инача false</returns>
+        public static bool DateMatchRegex(string str)
+            => Regex.IsMatch(str, 
+                "((0[1-9])|([12]\\d)|(3[01])).((0[1-9])|(1[012])).(19|20|21)\\d\\d");
+
+        public static DateTime? GetDateFromDayMonthYear(int Day, int Month, int Year)
         {
-            DateTime.TryParse($"{Day}.{Month}.{Year}", out DateTime result);
-            return result;
+            if (DateTime.TryParse($"{Day}.{Month}.{Year}", out DateTime result))
+                return result;
+            else
+                return null;
         }
 
-        public static DateTime GetDateFromDayMonthYear(string Day, string Month, string Year)
+        public static DateTime? GetDateFromDayMonthYear(string Day, string Month, string Year)
         {
-            DateTime.TryParse($"{Day}.{Month}.{Year}", out DateTime result);
-            return result;
+            if (DateTime.TryParse($"{Day}.{Month}.{Year}", out DateTime result))
+                return result;
+            else
+                return null;
         }
-
+        /// <summary>
+        /// Выравневание строк текста для более читабельного вида
+        /// </summary>
+        /// <param name="text">текст</param>
+        /// <param name="max_line_length">максимальное количество линий в строках</param>
+        /// <param name="indent">добавлять префикс в начало каждой строки</param>
+        /// <returns></returns>
         public static string Decor(string text, int max_line_length = 1024, string indent = "")
         {
-            if (max_line_length <= indent.Length) throw new Exception("Максимальная длина не может быть меньше длины отступа");
+            if (max_line_length <= indent.Length) 
+                throw new Exception("Максимальная длина не может быть меньше длины отступа");
             max_line_length -= indent.Length;
             var result = new StringBuilder();
             string[] records = text.GetLines();
             for (int i = 0; i < records.Length; i++)
                 while (records[i] != string.Empty)
-                    result.AppendLine($"{indent}{CutSubstring(ref records[i], max_line_length)}");
+                    result.AppendLine($"{indent}{CutBySubstring(ref records[i], max_line_length)}");
             return result.ToString();
         }
-
-        public static string CutSubstring(ref string str, int length, int start = 0)
+        /// <summary>
+        /// Извлечь и удалить подстроку из строки
+        /// </summary>
+        /// <param name="str">строка</param>
+        /// <param name="length">количество символов</param>
+        /// <param name="start">позиция</param>
+        /// <returns></returns>
+        public static string CutBySubstring(ref string str, int length, int start = 0)
         {
             if (start > str.Length)
             {
@@ -573,7 +634,9 @@ namespace BattleToad.Ext
             }
             else
             {
-                string result = str.Substring(start, length + start > str.Length ? str.Length - start : length );
+                string result = 
+                    str.Substring(start, length + start > str.Length ? 
+                    str.Length - start : length );
                 string temp = "";
                 if (start > 0) temp += str.Substring(0, start);
                 if (length + start < str.Length) temp += str.Substring(length + start, str.Length - length - start);
@@ -581,12 +644,11 @@ namespace BattleToad.Ext
                 return result;
             }
         }
-
         /// <summary>
         /// Получить количество лет и месяцев между двумя датами
         /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
+        /// <param name="start">дата начала</param>
+        /// <param name="end">дата завершения, если null, то берется актуальная дата</param>
         /// <returns></returns>
         public static string GetAge(DateTime start, DateTime? end = null)
         {
@@ -658,7 +720,8 @@ namespace BattleToad.Ext
         /// <param name="ShowPrivate">отображать приватные</param>
         /// <param name="ShowTypes">отображать тип переменных</param>
         /// <returns></returns>
-        public static string[] PrintValuesInClass<T>(T obj, bool ShowPrivate = false, bool ShowTypes = false)
+        public static string[] PrintValuesInClass<T>(T obj, bool ShowPrivate = false, 
+            bool ShowTypes = false)
         {
             if (obj == null) return new string[]{"Null"};
             List<string> result = new List<string>();
@@ -760,7 +823,8 @@ namespace BattleToad.Ext
             else
                 return null;
         }
-        public static int GetByteFromHexString(string hexString) => int.Parse(hexString, NumberStyles.HexNumber);
+        public static int GetByteFromHexString(string hexString) => 
+            int.Parse(hexString, NumberStyles.HexNumber);
     }
 
     /// <summary>
@@ -1111,6 +1175,7 @@ namespace BattleToad.Ext
         /// Имя файла с расширением
         /// </summary>
         public string NameWithExtension => $"{Name}{Extension}";
+        public string[] SplitPath => Path.Split('\\');
     }
     /// <summary>
     /// Перевести int в числительные строки, к примеру 1ый, 2ой, 103ий
@@ -1168,10 +1233,10 @@ namespace BattleToad.Ext
     {
         public enum NotifyType
         {
-            Normal = 0,
+            Normal  = 0,
             Message = 1,
             Warning = 2,
-            Error = 3
+            Error   = 3
         }
         /// <summary>
         /// Класс уведомления
