@@ -1161,48 +1161,113 @@ namespace BattleToad.Ext
         }
     }
 
+    /// <summary>
+    /// Работа с очередью уведомлений
+    /// </summary>
     public static class Notifies
     {
+        public enum NotifyType
+        {
+            Normal = 0,
+            Message = 1,
+            Warning = 2,
+            Error = 3
+        }
+        /// <summary>
+        /// Класс уведомления
+        /// </summary>
         public class Notify
         {
-            public Notify(string text, string title = "")
+            /// <summary>
+            /// Создать экземпляр класса Notify
+            /// </summary>
+            /// <param name="text">текст уведомления</param>
+            /// <param name="title">название уведомления</param>
+            /// <param name="type">тип уведомления</param>
+            public Notify(string text, string title = "", NotifyType type = NotifyType.Normal)
             {
                 Title = title;
-                Text = text;
+                Text  = text;
+                Type  = type;
             }
+            /// <summary>
+            /// текст уведомления
+            /// </summary>
             public readonly string Title;
+            /// <summary>
+            /// название уведомления
+            /// </summary>
             public readonly string Text;
+            /// <summary>
+            /// Тип уведомления: Normal = 0, Message = 1, Warning = 2, Error = 3
+            /// </summary>
+            public readonly NotifyType Type;
         }
 
         public class Notifier
         {
+            /// <summary>
+            /// Создать экземпляр класса Notifier
+            /// </summary>
             public Notifier()
             {
                 Notifies = new ConcurrentQueue<Notify>();
                 Instants = new ConcurrentQueue<Notify>();
             }
             private static   Notifier instance;
-            public  static   Notifier GetInstance() => instance ??= new Notifier();
+            /// <summary>
+            /// Получить сущность Notifier, если сущность не задана, то создается новый экзепляр
+            /// </summary>
+            /// <returns></returns>
+            public static   Notifier GetInstance() => instance ??= new Notifier();
             private readonly ConcurrentQueue<Notify> Notifies;
             private readonly ConcurrentQueue<Notify> Instants;
+            /// <summary>
+            /// Получить следующее уведомление, но не убирать его из очереди
+            /// </summary>
+            /// <returns></returns>
             public Notify Next()
             {
                 if (!Instants.TryPeek(out Notify notify))
                     Notifies.TryPeek(out notify);
                 return notify;
             }
+            /// <summary>
+            /// Получить следующее уведомление и убирать его из очереди
+            /// </summary>
+            /// <returns></returns>
             public Notify Get()
             {
                 if (!Instants.TryDequeue(out Notify notify))
                     Notifies.TryDequeue(out notify);
                 return notify;
             }
+            /// <summary>
+            /// Добавить уведомление
+            /// </summary>
+            /// <param name="notify">уведомление</param>
             public void Add(Notify notify) => Notifies.Enqueue(notify);
-            public void Add(string text, string title = "")
+            /// <summary>
+            /// Добавить уведомление
+            /// </summary>
+            /// <param name="text">текст уведомления</param>
+            /// <param name="title">название уведомления</param>
+            public void Add(string text, string title = "",
+                            NotifyType type = NotifyType.Normal)
                 => Add(new Notify(text, title));
+            /// <summary>
+            /// Добавить приоритетное уведомление
+            /// </summary>
+            /// <param name="notify">уведомление</param>
             public void Instant(Notify notify) => Instants.Enqueue(notify);
-            public void Instant(string text, string title = "")
-                => Instant(new Notify(text, title));
-        }   
+            /// <summary>
+            /// Добавить приоритетное уведомление
+            /// </summary>
+            /// <param name="text">текст уведомления</param>
+            /// <param name="title">название уведомления</param>
+            public void Instant(string text, string title = "", 
+                                NotifyType type = NotifyType.Normal)
+                => Instant(new Notify(text, title, type));
+        }
     }
 }
