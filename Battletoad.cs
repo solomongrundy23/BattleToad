@@ -175,6 +175,15 @@ namespace BattleToad.Ext
 
     public static class Extensions
     {
+        /// <summary>
+        /// Добавить в начало и конец строки строки
+        /// </summary>
+        /// <param name="text">исходный текст</param>
+        /// <param name="start">текст в начало</param>
+        /// <param name="end">текст в конец</param>
+        /// <returns></returns>
+        public static string Wrap(this string text, string start, string end)
+            => $"{start}{text}{end}";
         //Strings
         /// <summary>
         /// Перевести в Strings
@@ -651,6 +660,7 @@ namespace BattleToad.Ext
         /// <returns></returns>
         public static string[] PrintValuesInClass<T>(T obj, bool ShowPrivate = false, bool ShowTypes = false)
         {
+            if (obj == null) return new string[]{"Null"};
             List<string> result = new List<string>();
             BindingFlags flags = ShowPrivate ?
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
@@ -1149,5 +1159,50 @@ namespace BattleToad.Ext
                 default: return $"{text}th";
             }
         }
+    }
+
+    public static class Notifies
+    {
+        public class Notify
+        {
+            public Notify(string text, string title = "")
+            {
+                Title = title;
+                Text = text;
+            }
+            public readonly string Title;
+            public readonly string Text;
+        }
+
+        public class Notifier
+        {
+            public Notifier()
+            {
+                Notifies = new ConcurrentQueue<Notify>();
+                Instants = new ConcurrentQueue<Notify>();
+            }
+            private static   Notifier instance;
+            public  static   Notifier GetInstance() => instance ??= new Notifier();
+            private readonly ConcurrentQueue<Notify> Notifies;
+            private readonly ConcurrentQueue<Notify> Instants;
+            public Notify Next()
+            {
+                if (!Instants.TryPeek(out Notify notify))
+                    Notifies.TryPeek(out notify);
+                return notify;
+            }
+            public Notify Get()
+            {
+                if (!Instants.TryDequeue(out Notify notify))
+                    Notifies.TryDequeue(out notify);
+                return notify;
+            }
+            public void Add(Notify notify) => Notifies.Enqueue(notify);
+            public void Add(string text, string title = "")
+                => Add(new Notify(text, title));
+            public void Instant(Notify notify) => Instants.Enqueue(notify);
+            public void Instant(string text, string title = "")
+                => Instant(new Notify(text, title));
+        }   
     }
 }
