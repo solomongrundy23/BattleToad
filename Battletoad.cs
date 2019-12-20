@@ -11,6 +11,8 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace BattleToad.Ext
 {
@@ -758,6 +760,63 @@ namespace BattleToad.Ext
     /// </summary>
     public static class Addons
     {
+        /// <summary>
+        /// Вызывает MessageBox ошибки
+        /// </summary>
+        /// <param name="text">текст сообщение</param>
+        /// <param name="title">текст названия</param>
+        public static void MessageError(string text, string title = "Ошибка")
+            => MessageBox.Show(text, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
+        /// <summary>
+        /// Вызывает MessageBox предупреждения
+        /// </summary>
+        /// <param name="text">текст сообщение</param>
+        /// <param name="title">текст названия</param>
+        public static void MessageWarning(string text, string title = "Внимание")
+                    => MessageBox.Show(text, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        /// <summary>
+        /// Вызывает MessageBox информации
+        /// </summary>
+        /// <param name="text">текст сообщение</param>
+        /// <param name="title">текст названия</param>
+        public static void MessageInfo(string text, string title = "Сообщение")
+                    => MessageBox.Show(text, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+        /// <summary>
+        /// Вызывает MessageBox подтверждения
+        /// </summary>
+        /// <param name="text">текст сообщение</param>
+        /// <param name="title">текст названия</param>
+        /// <returns>Результат диалога</returns>
+        public static void MessageConfirmation(string text, string title = "Подтверждение")
+                    => MessageBox.Show(text, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+        /// <summary>
+        /// Вызывает MessageBox подтверждения с ошибкой
+        /// </summary>
+        /// <param name="text">текст сообщение</param>
+        /// <param name="title">текст названия</param>
+        /// <returns>Результат диалога</returns>
+        public static DialogResult MessageConfirmationWarning(string text, string title = "Внимание")
+            => MessageBox.Show(text, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+        /// <summary>
+        /// Получить размер отображаемого текста
+        /// </summary>
+        /// <param name="form">Форма, на которой расположен элемент</param>
+        /// <param name="text">Текст</param>
+        /// <param name="font">Шрифт текста</param>
+        /// <returns>Структура с размерами текста</returns>
+        public static SizeF GetTextSize(Form form, string text, Font font)
+        {
+            using (Graphics g = Graphics.FromHwnd(form.Handle))
+            {
+                return g.MeasureString(text, font);
+            }
+        }
+        /// <summary>
+        /// Поменять переменные значениями
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
         public static void Swap<T>(ref T x, ref T y)
         {
             T temp = x;
