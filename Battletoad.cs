@@ -60,6 +60,91 @@ namespace BattleToad.Ext
         {
             this.Remove("");
         }
+        /// <summary>
+        /// Сортировка Strings без учетка длины
+        /// </summary>
+        /// <param name="Desc">В обратном порядке</param>
+        public void Sort(bool Desc)
+        {
+            if (Desc)
+            {
+                this.Sort();
+                this.Reverse();
+            }
+            else
+            {
+                this.Sort();
+            }
+        }
+        /// <summary>
+        /// Сортировка Strings с учетом длины 
+        /// </summary>
+        /// <param name="Desc">В обратном порядке</param>
+        public void SortByStringRules(bool Desc = false)
+        {
+            Comparer<string> comparer;
+            if (Desc)
+                comparer = new StringComparerDesc();
+            else
+                comparer = new StringComparer();
+            this.Sort(comparer);
+        }
+        private class StringComparer : Comparer<string>
+        {
+            public override int Compare(string x, string y)
+            {
+                if (x == y) return 0;
+                if (x.Length == y.Length)
+                {
+                    if (x == "") return 0;
+                    int i = x.Length;
+                    do
+                    {
+                        i--;
+                        if (x[i] > y[i]) return 1;
+                        else
+                            if (x[i] < y[i]) return -1;
+                    }
+                    while (i > 0);
+                    return 0;
+                }
+                else
+                {
+                    if (x.Length > y.Length)
+                        return 1;
+                    else
+                        return -1;
+                }
+            }
+        }
+        private class StringComparerDesc : Comparer<string>
+        {
+            public override int Compare(string x, string y)
+            {
+                if (x == y) return 0;
+                if (x.Length == y.Length)
+                {
+                    if (x == "") return 0;
+                    int i = x.Length;
+                    do
+                    {
+                        i--;
+                        if (x[i] > y[i]) return -1;
+                        else
+                            if (x[i] < y[i]) return 1;
+                    }
+                    while (i > 0);
+                    return 0;
+                }
+                else
+                {
+                    if (x.Length > y.Length)
+                        return -1;
+                    else
+                        return 1;
+                }
+            }
+        }
         public override string ToString() => this.ToText();
         /// <summary>
         /// Преобразовать в очередь(Queue)
@@ -673,6 +758,12 @@ namespace BattleToad.Ext
     /// </summary>
     public static class Addons
     {
+        public static void Swap<T>(ref T x, ref T y)
+        {
+            T temp = x;
+            x = y;
+            y = temp;
+        }
         /// <summary>
         /// Проверить, совпадает ли строка с маской даты 31.12.2019, где день 00-31, месяц 01-12, год 1900-2199
         /// </summary>
