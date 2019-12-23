@@ -1031,12 +1031,16 @@ namespace BattleToad.Ext
         public static List<string> FindByRegex(string DATA, string TAG, bool registr = false,
                                                bool singleline = false, int group = 0)
         {
-            RegexOptions ro = singleline ? RegexOptions.Singleline : RegexOptions.Multiline;
-            ro = !registr ? ro | RegexOptions.IgnoreCase : ro;
-            MatchCollection re = Regex.Matches(DATA, TAG, ro);
             List<string> result = new List<string>();
-            foreach (Match rem in re)
-                result.Add(rem.Groups[group].ToString());
+            try
+            {
+                RegexOptions ro = singleline ? RegexOptions.Singleline : RegexOptions.Multiline;
+                ro = !registr ? ro | RegexOptions.IgnoreCase : ro;
+                MatchCollection re = Regex.Matches(DATA, TAG, ro);
+                foreach (Match rem in re)
+                    result.Add(rem.Groups[group].ToString());
+            }
+            catch { }
             return result;
         }
         /// <summary>
@@ -1070,6 +1074,11 @@ namespace BattleToad.Ext
             else
                 return null;
         }
+        /// <summary>
+        /// Перевести Hex-строку в integer
+        /// </summary>
+        /// <param name="hexString">строка с hex</param>
+        /// <returns></returns>
         public static int GetByteFromHexString(string hexString) => 
             int.Parse(hexString, NumberStyles.HexNumber);
     }
@@ -1234,11 +1243,13 @@ namespace BattleToad.Ext
         {
             return
                 (
-                Regex.IsMatch(number, @"^((\+7)|7|8)\d{10}$")
+                Regex.IsMatch(number, Mask.Simple)
                 ||
-                Regex.IsMatch(number, @"^((\+7)|7|8)\(\d\d\d\)\d\d\d\d\d\d\d$")
+                Regex.IsMatch(number, Mask.ForPrint)
                 ||
-                Regex.IsMatch(number, @"^((\+7)|7|8)\(\d\d\d\)\d\d\d-\d\d-\d\d$")
+                Regex.IsMatch(number, Mask.ForPrintWithMinus1)
+                ||
+                Regex.IsMatch(number, Mask.ForPrintWithMinus2)
                 );
         }
         public static string[] GetPhoneNumbersIgnoreOneSpace(string text, string prefix = "")
@@ -1386,7 +1397,6 @@ namespace BattleToad.Ext
         /// <returns>number % 2 == 0</returns>
         public static bool IsEven(this int number) => number % 2 == 0;
     }
-
     /// <summary>
     /// Имя файла
     /// </summary>
@@ -1425,10 +1435,37 @@ namespace BattleToad.Ext
         public string[] SplitPath => Path.Split('\\');
     }
     /// <summary>
-    /// Перевести int в числительные строки, к примеру 1ый, 2ой, 103ий
+    /// Перевести int в числительные строки, к примеру 1ый, 2ой, 103ий. Также указать возраст N год/лет.
     /// </summary>
     public static class OneToFirst
     {
+        /// <summary>
+        /// Вывод возраста, добавляет к числу слово год/лет в зависимости от числа
+        /// </summary>
+        /// <param name="years">количество лет</param>
+        /// <returns>строка с числом и словом год/лет</returns>
+        public static string YearsToText(this int years)
+        {
+            if (years >= 10 && years < 20) return $"{years} лет";
+            char last = years.ToString().Last();
+            switch (last)
+            {
+                case '1': 
+                    return $"{years} год";
+                case '2': 
+                case '3': 
+                case '4': 
+                    return $"{years} года";
+                case '0':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    return $"{years} лет";
+                default: return years.ToString();
+            }
+        }
         /// <summary>
         /// Перевести int в числительные строки на русском языке
         /// </summary>
@@ -1581,5 +1618,20 @@ namespace BattleToad.Ext
                                 NotifyType type = NotifyType.Normal)
                 => Instant(new Notify(text, title, type));
         }
+    }
+
+    /// <summary>
+    /// Заготовленные регулярные выражения
+    /// </summary>
+    public static class RegexPresets
+    {
+        public static readonly string Words = @"[^(\w)|\-)]";
+        public static readonly string Digits = @"[^\d]";
+        public static readonly string DigitsAndLetters = @"([^\w])|\d";
+        public static readonly string Date 
+            = @"((0[1-9])|([12]\\d)|(3[01])).((0[1-9])|(1[012])).(19|20|21)\\d\\d";
+        public static readonly string IPv4 
+            = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
+        public static readonly string KeyValue = @"^(\w+)=(.*)$";
     }
 }
