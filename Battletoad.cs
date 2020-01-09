@@ -227,6 +227,13 @@ namespace BattleToad.Ext
         public string[] GetLinesFromRegex(string matcher)
             => this.Where(x => x.IsRegexMatch(matcher)).ToArray();
         /// <summary>
+        /// Получить первую строку удовлетворяющих регулярному выражению
+        /// </summary>
+        /// <param name="matcher"></param>
+        /// <returns></returns>
+        public string GetLineFromRegex(string matcher)
+            => this.Where(x => x.IsRegexMatch(matcher)).FirstOrDefault();
+        /// <summary>
         /// Дописать строки в конец файла
         /// </summary>
         /// <param name="FileName">Имя файла</param>
@@ -511,32 +518,6 @@ namespace BattleToad.Ext
         /// <returns></returns>
         public static string GetHashString(this string text, Hash.Type Type = Hash.Type.MD5)
             => Hash.GetHash(Encoding.UTF8.GetBytes(text), Type);
-        /// <summary>
-        /// Добавлять в начало строки символ, пока строка меньше указанной длины
-        /// </summary>
-        /// <param name="text">строка</param>
-        /// <param name="addChar">символ для добавления</param>
-        /// <param name="length">желаемая длина</param>
-        /// <returns></returns>
-        public static string AddToStartWhileLengthNotValid(this string text, char addChar, int length)
-        {
-            while (text.Length < length)
-                text = addChar + text;
-            return text;
-        }
-        /// <summary>
-        /// Добавлять в конец строки символ, пока строка меньше указанной длины
-        /// </summary>
-        /// <param name="text">строка</param>
-        /// <param name="addChar">символ для добавления</param>
-        /// <param name="length">желаемая длина</param>
-        /// <returns></returns>
-        public static string AddToEndWhileLengthNotValid(this string text, char addChar, int length)
-        {
-            while (text.Length < length)
-                text = text + addChar;
-            return text;
-        }
         /// <summary>
         /// Найди значения по регулярному выражения
         /// </summary>
@@ -1563,12 +1544,12 @@ namespace BattleToad.Ext
                 Notifies = new ConcurrentQueue<Notify>();
                 Instants = new ConcurrentQueue<Notify>();
             }
-            private static   Notifier instance;
+            private static Notifier instance;
             /// <summary>
             /// Получить сущность Notifier, если сущность не задана, то создается новый экзепляр
             /// </summary>
             /// <returns></returns>
-            public static   Notifier GetInstance() => instance ??= new Notifier();
+            public static Notifier GetInstance() => instance ??= new Notifier();
             private readonly ConcurrentQueue<Notify> Notifies;
             private readonly ConcurrentQueue<Notify> Instants;
             /// <summary>

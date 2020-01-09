@@ -142,7 +142,8 @@ namespace BattleToad.CSV
             if (record == null) return Null_Text;
             return Quotes == null ? record : $"{Quotes}{record}{Quotes}";
         }
-        private string UnTrimmerRecord(string[] records) => string.Join($"{SplitChar}", records.Select(x => UnTrimmer(x)).ToArray());
+        private string UnTrimmerRecord(string[] records) 
+            => string.Join($"{SplitChar}", records.Select(x => UnTrimmer(x)).ToArray());
 
         /// <summary>
         /// Запустить сборку мусора GC.Collect()
