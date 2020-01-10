@@ -1,5 +1,4 @@
-﻿using BattleToad.Ext;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace BattleToad.ConsoleAddons

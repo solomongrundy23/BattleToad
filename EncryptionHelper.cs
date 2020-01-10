@@ -14,19 +14,19 @@ namespace BattleToad.Crypt
         /// </summary>
         public static byte[] Salt =
                     new byte[] {
-                    0x23,
-                    0x87,
-                    0x44,
-                    0x1f,
-                    0x1c,
-                    0x3a,
-                    0x77,
-                    0x17,
-                    0x9F,
-                    0x64,
-                    0x66,
-                    0x11,
-                    0xaf
+                        45,
+                        43,
+                        16,
+                        252,
+                        78,
+                        238,
+                        229,
+                        235,
+                        5,
+                        88,
+                        191,
+                        16,
+                        84
                     };
         /// <summary>
         /// Зашифровать строку

@@ -89,9 +89,16 @@ namespace BattleToad.RosSvyaz
         /// </summary>
         /// <param name="filter">фильтр по содержится без учета регистра</param>
         /// <returns></returns>
-        public string[] GetRegionsList()
+        public string[] GetRegionsList(string filter = "")
         {
-            return Items.Select(x => $"{x.Region}").Distinct().ToArray();
+            var list = Items.Select(x => $"{x.Region}").Distinct().ToArray();
+            if (filter == "")
+                return list.ToArray();
+            else
+            {
+                filter = filter.ToLower();
+                return list.Where(x => x.ToLower().Contains(filter)).ToArray();
+            }
         }
         /// <summary>
         /// Получить список операторов
@@ -100,7 +107,14 @@ namespace BattleToad.RosSvyaz
         /// <returns></returns>
         public string[] GetOperatorsList(string filter = "")
         {
-            return Items.Select(x => x.Operator).Distinct().ToArray();
+            var list = Items.Select(x => x.Operator).Distinct();
+            if (filter == "")
+                return list.ToArray();
+            else
+            {
+                filter = filter.ToLower();
+                return list.Where(x => x.ToLower().Contains(filter)).ToArray();
+            }
         }
 
         public string GetOperatorByNumber(string number)
@@ -112,7 +126,7 @@ namespace BattleToad.RosSvyaz
         public string GetRegionByNumber(string number)
         {
             Record record = GetByNumber(number);
-            return record == null ? null : record.Operator;
+            return record == null ? null : record.Region;
         }
 
         public Record[] GetRecords(string operator_name, string region_name)

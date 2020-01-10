@@ -1003,7 +1003,7 @@ namespace BattleToad.Ext
         /// <param name="group">вывести группу</param>
         /// <returns></returns>
         public static List<string> FindByRegex(string DATA, string TAG, bool registr = false,
-                                               bool singleline = false, int group = 0)
+                                              bool singleline = false, int group = 0)
         {
             List<string> result = new List<string>();
             try
@@ -1124,7 +1124,6 @@ namespace BattleToad.Ext
             }
             return result.ToString();
         }
-
     }
 
     /// <summary>
