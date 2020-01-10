@@ -120,13 +120,13 @@ namespace BattleToad.RosSvyaz
         public string GetOperatorByNumber(string number)
         {
             Record record = GetByNumber(number);
-            return record == null ? null : record.Operator;
+            return record?.Operator;
         }
 
         public string GetRegionByNumber(string number)
         {
             Record record = GetByNumber(number);
-            return record == null ? null : record.Region;
+            return record?.Region;
         }
 
         public Record[] GetRecords(string operator_name, string region_name)
