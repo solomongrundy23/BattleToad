@@ -503,14 +503,6 @@ namespace BattleToad.Ext
         public static bool IsIP(this string text)
             => Addons.IsIP(text);
         /// <summary>
-        /// Проверить строку, если это IP-адрес, то выдать версию. 
-        /// Результат: "ipv4", "ipv6" и null
-        /// </summary>
-        /// <param name="text">строка</param>
-        /// <returns>"ipv4", "ipv6" и null</returns>
-        public static string GetIPVersion(this string text)
-            => Addons.IsIP_Ext(text);
-        /// <summary>
         /// Получить хэш от строки, Type указывает на тип хэша по умолчанию Hash.Type.MD5
         /// </summary>
         /// <param name="text">строка</param>
@@ -993,6 +985,7 @@ namespace BattleToad.Ext
             }
             return false;
         }
+        public static string GetWindowsUser() => WindowsIdentity.GetCurrent().Name;
         /// <summary>
         /// Получить время в региональном формате
         /// </summary>
@@ -1031,30 +1024,6 @@ namespace BattleToad.Ext
         /// <returns></returns>
         public static bool IsIP(string text)
             => Regex.IsMatch(text, "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$");
-        /// <summary>
-        /// Проверить строку, если это IP-адрес, то выдать версию. 
-        /// Результат: "ipv4", "ipv6" и null
-        /// </summary>
-        /// <param name="value">строка</param>
-        /// <returns>"ipv4", "ipv6" и null</returns>
-        public static string IsIP_Ext(string value)
-        {
-            IPAddress address;
-            if (IPAddress.TryParse(value, out address))
-            {
-                switch (address.AddressFamily)
-                {
-                    case System.Net.Sockets.AddressFamily.InterNetwork:
-                        return "ipv4";
-                    case System.Net.Sockets.AddressFamily.InterNetworkV6:
-                        return "ipv6";
-                    default:
-                        return null;
-                }
-            }
-            else
-                return null;
-        }
         /// <summary>
         /// Перевести Hex-строку в integer
         /// </summary>
@@ -1582,8 +1551,7 @@ namespace BattleToad.Ext
             /// </summary>
             /// <param name="text">текст уведомления</param>
             /// <param name="title">название уведомления</param>
-            public void Add(string text, string title = "",
-                            NotifyType type = NotifyType.Normal)
+            public void Add(string text, string title = "", NotifyType type = NotifyType.Normal)
                 => Add(new Notify(text, title));
             /// <summary>
             /// Добавить приоритетное уведомление

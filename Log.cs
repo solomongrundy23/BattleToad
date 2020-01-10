@@ -44,13 +44,13 @@ namespace BattleToad.Log
     {
         public bool Enabled = true;
         private static Log instance;
-        public static Log GetInstance
+        public static Log GetInstance()
         {
-            get
+            lock (instance)
             {
                 if (instance.Null()) instance = new Log();
-                return instance;
             }
+            return instance;
         }
         private struct Record
         {
@@ -132,7 +132,14 @@ namespace BattleToad.Log
         {
             Dispose(false);
         }
-        private readonly string FileName;
+        /// <summary>
+        /// Дублировать записи в консоль
+        /// </summary>
+        public bool ConsoleOut = false;
+        /// <summary>
+        /// Имя файла лога
+        /// </summary>
+        public string FileName;
         private readonly Thread WritterThread;
         private readonly ConcurrentQueue<Record> LogList = new ConcurrentQueue<Record>();
         /// <summary>
@@ -149,6 +156,9 @@ namespace BattleToad.Log
             WritterThread.Start();
         }
         private void WriteLog(Record log) => LogList.Enqueue(log);
+        /// <summary>
+        /// Метод для записи лога
+        /// </summary>
         private void Writter()
         {
             while (true)
@@ -157,6 +167,7 @@ namespace BattleToad.Log
                 {
                     try
                     {
+                        if (ConsoleOut) Console.WriteLine(log_string.String);
                         File.AppendAllText(FileName, log_string.String);
                     }
                     catch (Exception ex)
@@ -178,7 +189,8 @@ namespace BattleToad.Log
             { 
                 Time = Addons.GetNow(), 
                 Title = title, 
-                Data = log}
+                Data = log
+            }
             );
         }
         /// <summary>

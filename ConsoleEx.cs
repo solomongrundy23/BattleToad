@@ -1,5 +1,6 @@
 ﻿using BattleToad.Ext;
 using System;
+using System.Collections.Generic;
 
 namespace BattleToad.ConsoleAddons
 {
@@ -31,10 +32,21 @@ namespace BattleToad.ConsoleAddons
         /// </summary>
         /// <param name="label">текст</param>
         /// <param name="data">переменная</param>
-        public static void Input(string label, out int data)
+        public static void Input(string label, out int data, int min = int.MinValue, int max = int.MaxValue)
         {
-            Console.Write(label);
-            data = int.Parse(Console.ReadLine());
+            while (true)
+            {
+                Console.Write(label);
+                if (int.TryParse(Console.ReadLine(), out data))
+                {
+                    if (min < data && max > data)
+                        return;
+                    else
+                        Console.WriteLine("Число вне диапозона");
+                }
+                else
+                    Console.WriteLine("Неверен формат данных");
+            }
         }
         /// <summary>
         /// Вывести текст в цикле
@@ -62,10 +74,27 @@ namespace BattleToad.ConsoleAddons
             Console.BackgroundColor = oldBack;
         }
         /// <summary>
-        /// Console.WriteLine
+        /// Упрощение Console.WriteLine
         /// </summary>
         /// <param name="text">текст</param>
-        public static void Print(string text) => Console.WriteLine(text);
+        public static void Print(string text = "") => Console.WriteLine(text);
+        /// <summary>
+        /// Упрощение Console.WriteLine
+        /// </summary>
+        /// <param name="text">текст</param>
+        public static void Print<T>(T text) => Console.WriteLine(text);
+        /// <summary>
+        /// Упрощение Console.WriteLine
+        /// </summary>
+        /// <param name="text">текст</param>
+        public static void Print(string[] text) => 
+            Console.WriteLine(string.Join(Environment.NewLine, text));
+        /// <summary>
+        /// Упрощение Console.WriteLine
+        /// </summary>
+        /// <param name="text">текст</param>
+        public static void Print(List<string> text) =>
+            Console.WriteLine(string.Join(Environment.NewLine, text));
         /// <summary>
         /// PrintColor c зелёным цветом фона
         /// </summary>
@@ -137,9 +166,9 @@ namespace BattleToad.ConsoleAddons
                 int _max = value * (length - 3) / max;
                 return
                     value ==
-                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    max ? $"[OK]".PadRight(length, ' ')
                     :
-                    $"|{(result.AddToStartWhileLengthNotValid('=', _max) + '>').AddToEndWhileLengthNotValid(' ', length - 3)}|";
+                    $"|{(result.PadLeft(_max, '=') + '>').PadRight(length - 3, ' ')}|";
             }
             private string Theme3(int value)
             {
@@ -148,9 +177,9 @@ namespace BattleToad.ConsoleAddons
                 int _max = value * (length - 3) / max;
                 return
                     value ==
-                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    max ? $"[OK]".PadRight(length, ' ')
                     :
-                    $"[{(result.AddToStartWhileLengthNotValid('=', _max) + '>').AddToEndWhileLengthNotValid('.', length - 3)}]";
+                    $"[{(result.PadLeft(_max, '=') + '>').PadRight(length - 3, '.')}]";
             }
             private string Theme4(int value)
             {
@@ -159,9 +188,9 @@ namespace BattleToad.ConsoleAddons
                 int _max = value * (length - 2) / max;
                 return
                     value ==
-                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    max ? $"[OK]".PadRight(length, ' ')
                     :
-                    $"|{(result.AddToStartWhileLengthNotValid('#', _max)).AddToEndWhileLengthNotValid(' ', length - 3)}|";
+                    $"|{(result.PadLeft(_max, '#')).PadRight(length - 3, ' ')}|";
             }
             private string Theme5(int value)
             {
@@ -170,14 +199,17 @@ namespace BattleToad.ConsoleAddons
                 int _max = value * (length - 2) / max;
                 return
                     value ==
-                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    max ? $"[OK]".PadRight(length, ' ')
                     :
-                    $"[{(result.AddToStartWhileLengthNotValid('#', _max)).AddToEndWhileLengthNotValid('.', length - 3)}]";
+                    $"[{(result.PadLeft(_max, '#')).PadRight(length - 3, '.')}]";
             }
             private string Theme6(int value)
             {
                 if (value > max) value = max;
-                return value == max ? "[OK]".AddToEndWhileLengthNotValid(' ', max.ToString().Length * 2 + 1) : $"{value}/{max}";
+                return value == max ? 
+                    "[OK]".PadRight(max.ToString().Length * 2 + 1, ' ')
+                    :
+                    $"{value}/{max}";
             }
             private string Theme7(int value)
             {
@@ -186,9 +218,9 @@ namespace BattleToad.ConsoleAddons
                 int _max = value * (length - 3) / max;
                 return
                     value ==
-                    max ? $"[OK]".AddToEndWhileLengthNotValid(' ', length)
+                    max ? $"[OK]".PadRight(length, ' ')
                     :
-                    $"[{(result.AddToStartWhileLengthNotValid('=', _max) + '|').AddToEndWhileLengthNotValid('-', length - 3)}]";
+                    $"[{(result.PadLeft(_max, '=') + '|').PadRight(length - 3, '-')}]";
             }
 
             /// <summary>

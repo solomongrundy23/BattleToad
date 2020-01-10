@@ -185,7 +185,7 @@ namespace BattleToad.PhoneRange
                     sa = sa.Substring(0, sa.Length - 1);
                     sb = sb.Substring(0, sb.Length - 1);
                 }
-                if (sa == sb) return sa.AddToEndWhileLengthNotValid('.', 11);
+                if (sa == sb) return sa.PadRight(11, '.');
                 return null;
             }
             catch

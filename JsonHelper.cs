@@ -26,7 +26,7 @@ namespace BattleToad.JSONHelper
         /// <typeparam name="T">класс</typeparam>
         /// <param name="obj">объект</param>
         /// <returns></returns>
-        public static string Serialize<T>(T obj)
+        private static string Serialize<T>(T obj)
         {
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             return serializer.Serialize(obj);
@@ -37,11 +37,10 @@ namespace BattleToad.JSONHelper
         /// <typeparam name="T">класс</typeparam>
         /// <param name="json">JSON</param>
         /// <returns></returns>
-        public static T Deserialize<T>(string json)
+        private static T Deserialize<T>(string json)
         {
             JavaScriptSerializer serializer = new JavaScriptSerializer();
             return serializer.Deserialize<T>(json);
         }
-        public static string FreddyVsJSON => "Json Wins";
     }
 }

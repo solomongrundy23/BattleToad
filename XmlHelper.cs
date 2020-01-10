@@ -28,7 +28,7 @@ namespace BattleToad.XMLHelper
         /// <typeparam name="T">класс</typeparam>
         /// <param name="obj">объект</param>
         /// <returns></returns>
-        public static string Serialize<T>(T obj)
+        private static string Serialize<T>(T obj)
         {
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
             using (StringWriter textWriter = new StringWriter())
@@ -43,7 +43,7 @@ namespace BattleToad.XMLHelper
         /// <typeparam name="T">класс</typeparam>
         /// <param name="xml"></param>
         /// <returns></returns>
-        public static T Deserialize<T>(string xml)
+        private static T Deserialize<T>(string xml)
         {
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(T));
             using (StringReader textReader = new StringReader(xml))

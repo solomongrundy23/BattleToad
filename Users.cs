@@ -17,9 +17,9 @@ namespace BattleToad.Users
             Password = password;
             if (users != null) users.List.Add(this);
         }
-        public string Name;
+        public  string Name;
         private string _Password;
-        public string Password
+        public  string Password
         {
             get => _Password;
             set => _Password = Hash.GetHash(Encoding.Unicode.GetBytes(value), Hash.Type.SHA256);
