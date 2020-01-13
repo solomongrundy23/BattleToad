@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Principal;
@@ -643,9 +642,9 @@ namespace BattleToad.Ext
         /// <param name="ShowPrivate">отображать приватные</param>
         /// <param name="ShowTypes">отображать тип переменных</param>
         /// <returns></returns>
-        public static string[] PrintClassValues<T>(this T obj, bool ShowPrivate = false, 
+        public static string[] PrintClassValues<T>(this T obj, bool Sort = false, bool ShowPrivate = false, 
             bool ShowTypes = false)
-            => Addons.PrintValuesInClass<T>(obj, ShowPrivate, ShowTypes);
+            => Addons.PrintValuesInClass<T>(obj, Sort, ShowPrivate, ShowTypes);
     }
     /// <summary>
     /// Класс для упрощения работы с хэшированием
@@ -917,13 +916,13 @@ namespace BattleToad.Ext
                 return null;
             }
         }
-            /// <summary>
-            /// Быстро и безболезнено перевести в int
-            /// </summary>
-            /// <param name="text"></param>
-            /// <param name="default_value"></param>
-            /// <returns></returns>
-            public static int ToInt(string text, int default_value = int.MinValue)
+        /// <summary>
+        /// Быстро и безболезнено перевести в int
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="default_value"></param>
+        /// <returns></returns>
+        public static int ToInt(string text, int default_value = int.MinValue)
             => int.TryParse(text, out int x) ? x : default_value;
         /// <summary>
         /// Быстро и безболезнено перевести в long
@@ -940,8 +939,8 @@ namespace BattleToad.Ext
         /// <param name="ShowPrivate">отображать приватные</param>
         /// <param name="ShowTypes">отображать тип переменных</param>
         /// <returns></returns>
-        public static string[] PrintValuesInClass<T>(T obj, bool ShowPrivate = false, 
-            bool ShowTypes = false)
+        public static string[] PrintValuesInClass<T>(T obj, bool Sort = false, 
+            bool ShowPrivate = false, bool ShowTypes = false)
         {
             if (obj == null) return new string[]{"Null"};
             List<string> result = new List<string>();
@@ -969,6 +968,7 @@ namespace BattleToad.Ext
                 result.AddRange(fields);
             }
             catch { }
+            if (Sort) result.Sort();
             return result.ToArray();
         }
         /// <summary>

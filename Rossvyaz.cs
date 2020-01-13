@@ -27,19 +27,19 @@ namespace BattleToad.RosSvyaz
         /// <summary>
         /// Список распарсиных записей
         /// </summary>
-        public List<Record> Items = new List<Record>();
+        public List<RecordEx> Items = new List<RecordEx>();
         /// <summary>
         /// Загрузить и распарсить файлы
         /// </summary>
         public void Load()
         {
             string[] filelist = new string[]
-                {
-                    "Kody_ABC-3kh.csv",
-                    "Kody_ABC-4kh.csv",
-                    "Kody_ABC-8kh.csv",
-                    "Kody_DEF-9kh.csv"
-                };
+            {
+                "Kody_ABC-3kh.csv",
+                "Kody_ABC-4kh.csv",
+                "Kody_ABC-8kh.csv",
+                "Kody_DEF-9kh.csv"
+            };
             foreach (string file_name in filelist) Load(file_name, false);
         }
         /// <summary>
@@ -54,7 +54,7 @@ namespace BattleToad.RosSvyaz
             foreach (string str in data)
             {
                 if (!string.IsNullOrEmpty(str))
-                    Items.Add(new Record(str));
+                    Items.Add(new RecordEx(str));
             }
         }
         /// <summary>
@@ -78,10 +78,10 @@ namespace BattleToad.RosSvyaz
         /// </summary>
         /// <param name="number">Номер телефона</param>
         /// <returns>Запись Record</returns>
-        public Record GetByNumber(string number)
+        public RecordEx GetByNumber(string number)
         {
-            long num;
-            if (!long.TryParse(number, out num)) return null;
+            ulong num;
+            if (!ulong.TryParse(number, out num)) return null;
             return Items.Where(x => num >= x.Min && num <= x.Max).FirstOrDefault();
         }
         /// <summary>
@@ -91,7 +91,7 @@ namespace BattleToad.RosSvyaz
         /// <returns></returns>
         public string[] GetRegionsList(string filter = "")
         {
-            var list = Items.Select(x => $"{x.Region}").Distinct().ToArray();
+            var list = Items.Select(x => x.Region).Distinct().ToArray();
             if (filter == "")
                 return list.ToArray();
             else
@@ -116,20 +116,33 @@ namespace BattleToad.RosSvyaz
                 return list.Where(x => x.ToLower().Contains(filter)).ToArray();
             }
         }
-
+        /// <summary>
+        /// Получить оператора по номеру телефона
+        /// </summary>
+        /// <param name="number">номера телефона</param>
+        /// <returns></returns>
         public string GetOperatorByNumber(string number)
         {
-            Record record = GetByNumber(number);
+            var record = GetByNumber(number);
             return record?.Operator;
         }
-
+        /// <summary>
+        /// Получить регион по номеру телефона
+        /// </summary>
+        /// <param name="number">номера телефона</param>
+        /// <returns></returns>
         public string GetRegionByNumber(string number)
         {
-            Record record = GetByNumber(number);
+            var record = GetByNumber(number);
             return record?.Region;
         }
-
-        public Record[] GetRecords(string operator_name, string region_name)
+        /// <summary>
+        /// Получить записи по оператору и региону
+        /// </summary>
+        /// <param name="operator_name">оператор</param>
+        /// <param name="region_name">регион</param>
+        /// <returns>массив записей</returns>
+        public RecordEx[] GetRecords(string operator_name, string region_name)
         {
             if (operator_name == "" && region_name == "") 
                 return Items.ToArray();
@@ -139,7 +152,9 @@ namespace BattleToad.RosSvyaz
                 return Items.Where(x => x.Region == region_name).ToArray();
             return Items.Where(x => x.Operator != operator_name && x.Region == region_name).ToArray();
         }
-
+        /// <summary>
+        /// Убить экземпляр класса
+        /// </summary>
         public void Dispose()
         {
             Items = null;
@@ -150,13 +165,26 @@ namespace BattleToad.RosSvyaz
 
     public class Record
     {
-        public Record(string param_string)
+        public Record() { }
+        public Record(ulong min, ulong max)
+        {
+            Min = min;
+            Max = max;
+        }
+        public ulong Min;
+        public ulong Max;
+        public virtual string ToString(string splitter = "\t")
+            => $"{Min}{splitter}{Max}";
+    }
+    public class RecordEx : Record
+    {
+        public RecordEx(string param_string)
         {
             try
             {
                 string[] recs = param_string.Split(';');
-                Min = long.Parse(recs[0] + recs[1]);
-                Max = long.Parse(recs[0] + recs[2]);
+                Min = ulong.Parse(recs[0] + recs[1]);
+                Max = ulong.Parse(recs[0] + recs[2]);
                 Operator = recs[4];
                 Region = recs[5];
             }
@@ -165,15 +193,13 @@ namespace BattleToad.RosSvyaz
                 throw new FormatException("Ошибка обработки записи");
             }
         }
-        public long Min;
-        public long Max;
         public string Operator;
         public string Region;
-        public string ToString(string splitter = "\t") 
+        public override string ToString(string splitter = "\t") 
             => $"{Min}{splitter}{Max}{splitter}{Operator}{splitter}{Region}";
     }
 
-    public static class Loader
+    public static class CSVLoader
     {
         public static Dictionary<string, string> urls = new Dictionary<string, string>()
         {

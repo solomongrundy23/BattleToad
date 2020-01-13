@@ -237,14 +237,9 @@ namespace BattleToad.PhoneRange
                         B = int.Parse(list[i].Substring(list[i].Length - 1, 1));
                         if ((C + 1 != B) | (old.Length + 1 != list[i].Length))
                         {
-                            string temp_s = old + "[" + A + "-" + C + "]";
-                            int j = old.Length;
-                            while (j < 10)
-                            {
-                                temp_s += ".";
-                                j++;
-                            }
-                            result.Add("^" + temp_s + "$");
+                            string temp_s = A == C ? old + $"{A}" : old + $"[{A}-{C}]";
+                            temp_s += AddDots(ref old);
+                            result.Add($"^{temp_s}$");
                             A = B;
                             C = B;
                             old = list[i].Substring(0, list[i].Length - 1);
@@ -258,22 +253,23 @@ namespace BattleToad.PhoneRange
                 }
                 if (!recorded)
                 {
-                    string temp_s = old + "[" + A + "-" + C + "]";
-                    int j = old.Length;
-                    while (j < 10)
-                    {
-                        temp_s += ".";
-                        j++;
-                    }
+                    string temp_s = A == C ? old + $"{A}" : old + $"[{A}-{C}]";
+                    temp_s += AddDots(ref old);
                     result.Add("^" + temp_s + "$");
                 }
-                for (int i = 0; i <= 9; i++) result = result.Select(x => x.Replace($"[{i}-{i}]", $"{i}")).ToList();
                 result = result.Select(x => x.Replace("[0-9]", "0")).ToList();
             }
             return result;
         }
 
-        private static IEnumerable<UInt64> ToMasks(UInt64 start, UInt64 end)
+        private string AddDots(ref string old)
+        {
+            string result = "";
+            for (int i = old.Length; i < 10; i++) result += ".";
+            return result;
+        }
+
+        private IEnumerable<UInt64> ToMasks(UInt64 start, UInt64 end)
         {
             while (start <= end)
             {
