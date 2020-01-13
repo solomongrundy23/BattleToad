@@ -69,12 +69,12 @@ namespace BattleToad.Ext
         {
             if (Desc)
             {
-                this.Sort();
-                this.Reverse();
+                Sort();
+                Reverse();
             }
             else
             {
-                this.Sort();
+                Sort();
             }
         }
         /// <summary>
@@ -88,7 +88,7 @@ namespace BattleToad.Ext
                 comparer = new StringComparerDesc();
             else
                 comparer = new StringComparer();
-            this.Sort(comparer);
+            Sort(comparer);
         }
         private class StringComparer : Comparer<string>
         {
@@ -1124,6 +1124,23 @@ namespace BattleToad.Ext
             }
             return result.ToString();
         }
+    }
+
+    /// <summary>
+    /// Класс диапозона, содержащий минимум и максимум
+    /// </summary>
+    public class Range
+    {
+        public Range() { }
+        public Range(ulong min, ulong max)
+        {
+            Min = min;
+            Max = max;
+        }
+        public ulong Min;
+        public ulong Max;
+        public virtual string ToString(string splitter = "\t")
+            => Min == Max ? $"{Min}" : $"{Min}{splitter}{Max}";
     }
 
     /// <summary>

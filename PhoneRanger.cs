@@ -5,35 +5,6 @@ using BattleToad.Ext;
 
 namespace BattleToad.PhoneRange
 {
-    /// <summary>
-    /// Класс для диапозона телефонных номеров, храняться в ulong
-    /// </summary>
-    public class Range
-    {
-        /// <summary>
-        /// Создать экземпляр класса диапозона телефонных номеров
-        /// </summary>
-        /// <param name="min">Минимальный номер</param>
-        /// <param name="max">Максимальный номер</param>
-        public Range(ulong min, ulong max)
-        {
-            Max = max;
-            Min = min;
-        }
-        /// <summary>
-        /// Минимальный номер
-        /// </summary>
-        public ulong Min;
-        /// <summary>
-        /// Максимальный номер
-        /// </summary>
-        public ulong Max;
-        /// <summary>
-        /// Вывести диапозон в строку
-        /// </summary>
-        public string String => Min == Max ? Min.ToString() : $"{Min}\t{Max}";
-    }
-
     public class PhoneRanger : IDisposable
     {
         /// <summary>
@@ -64,7 +35,11 @@ namespace BattleToad.PhoneRange
         {
             try
             {
-                Ranges.Clear();
+                if (Ranges.Count > 0)
+                {
+                    Ranges.Clear();
+                    Garbage();
+                }
                 var nums = records
                     .Select(x => RusPhoneNumbers.GetPhoneNumber(x, "7"))
                     .Where(x => x != null)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BattleToad.Ext;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,7 +28,7 @@ namespace BattleToad.RosSvyaz
         /// <summary>
         /// Список распарсиных записей
         /// </summary>
-        public List<RecordEx> Items = new List<RecordEx>();
+        public List<Record> Items = new List<Record>();
         /// <summary>
         /// Загрузить и распарсить файлы
         /// </summary>
@@ -53,8 +54,7 @@ namespace BattleToad.RosSvyaz
             string[] data = File.ReadAllLines(file_name);
             foreach (string str in data)
             {
-                if (!string.IsNullOrEmpty(str))
-                    Items.Add(new RecordEx(str));
+                if (!string.IsNullOrEmpty(str)) Items.Add(new Record(str));
             }
         }
         /// <summary>
@@ -78,10 +78,9 @@ namespace BattleToad.RosSvyaz
         /// </summary>
         /// <param name="number">Номер телефона</param>
         /// <returns>Запись Record</returns>
-        public RecordEx GetByNumber(string number)
+        public Record GetByNumber(string number)
         {
-            ulong num;
-            if (!ulong.TryParse(number, out num)) return null;
+            if (!ulong.TryParse(number, out ulong num)) return null;
             return Items.Where(x => num >= x.Min && num <= x.Max).FirstOrDefault();
         }
         /// <summary>
@@ -142,7 +141,7 @@ namespace BattleToad.RosSvyaz
         /// <param name="operator_name">оператор</param>
         /// <param name="region_name">регион</param>
         /// <returns>массив записей</returns>
-        public RecordEx[] GetRecords(string operator_name, string region_name)
+        public Record[] GetRecords(string operator_name, string region_name)
         {
             if (operator_name == "" && region_name == "") 
                 return Items.ToArray();
@@ -163,22 +162,9 @@ namespace BattleToad.RosSvyaz
         }
     }
 
-    public class Record
+    public class Record : Range
     {
-        public Record() { }
-        public Record(ulong min, ulong max)
-        {
-            Min = min;
-            Max = max;
-        }
-        public ulong Min;
-        public ulong Max;
-        public virtual string ToString(string splitter = "\t")
-            => $"{Min}{splitter}{Max}";
-    }
-    public class RecordEx : Record
-    {
-        public RecordEx(string param_string)
+        public Record(string param_string)
         {
             try
             {

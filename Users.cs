@@ -8,6 +8,15 @@ namespace BattleToad.Users
 {
     class Users
     {
+        private static Users Instance;
+        public static Users GetInstance()
+        {
+            lock (Instance)
+            {
+                if (Instance == null) Instance = new Users();
+                return Instance;
+            }
+        }
         public List<User> List = new List<User>();
     }
 
@@ -83,6 +92,16 @@ namespace BattleToad.Users
                 foreach (char c in password)
                 {
                     if (Char.IsDigit(c))
+                        return true;
+                }
+                return false;
+            }
+
+            private static bool ContainsSimbol(string password)
+            {
+                foreach (char c in password)
+                {
+                    if (Char.IsSymbol(c))
                         return true;
                 }
                 return false;
