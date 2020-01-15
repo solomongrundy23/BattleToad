@@ -206,7 +206,7 @@ namespace BattleToad.Crypt
             {
                 if (disposing)
                 {
-                    RSA.Dispose();
+                     RSA.Dispose();
                 }
                 disposed = true;
             }

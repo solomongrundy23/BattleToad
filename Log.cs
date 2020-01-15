@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +9,29 @@ using BattleToad.Ext;
 
 namespace BattleToad.Log
 {
+    /// <summary>
+    /// Абстрактный класс с логированием для наследования, нужно переопределить GetLogString(), чтобы метод WriteLog мог получить строку из класса для записи в лог
+    /// </summary>
+    public abstract class Logged
+    {
+        /// <summary>
+        /// Получить строку для логирования, здесь переопределить метод, чтобы возвращал то, что требуется
+        /// </summary>
+        /// <returns>Вернуть строку для логирования</returns>
+        protected abstract string GetLogString();
+        /// <summary>
+        /// Ссылка на экземпляр класса логирования
+        /// </summary>
+        public Log Log;
+        /// <summary>
+        /// Название записи в логе
+        /// </summary>
+        public string LogTitle = "";
+        /// <summary>
+        /// Записать данные из метода GetLogString в лог
+        /// </summary>
+        public void WriteLog() => Log.Write(GetLogString(), LogTitle);
+    }
     /// <summary>
     /// Расширения для логирования
     /// </summary>
@@ -99,22 +121,20 @@ namespace BattleToad.Log
         protected async void Dispose(bool disposing)
         {
             instance = null;
-            if (WritterThread.IsAlive) WritterThread.Abort();
+            if (WriterThread.IsAlive) WriterThread_NoneStop_Trigger = false;
             {
                 await Task.Run(() =>
-                {
-                    while (LogList.Count() > 0)
+                { 
+                    while (WriterThread.IsAlive) { }
+                    if (LogList.TryDequeue(out Record log_string))
                     {
-                        if (LogList.TryDequeue(out Record log_string))
+                        try
                         {
-                            try
-                            {
-                                File.AppendAllText(FileName, log_string.String);
-                            }
-                            catch (Exception ex)
-                            {
-                                throw new Exception($"Ошибка логирования - {ex.Message}");
-                            }
+                            File.AppendAllText(FileName, log_string.String);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new Exception($"Ошибка логирования - {ex.Message}");
                         }
                     }
                 });
@@ -123,7 +143,8 @@ namespace BattleToad.Log
             {
                 if (disposing)
                 {
-                    WritterThread.Abort();
+                    WriterThread.Abort();
+                    WriterThread = null;
                 }
                 Disposed = true;
             }
@@ -140,7 +161,8 @@ namespace BattleToad.Log
         /// Имя файла лога
         /// </summary>
         public string FileName;
-        private readonly Thread WritterThread;
+        private Thread WriterThread;
+        private bool WriterThread_NoneStop_Trigger = true;
         private readonly ConcurrentQueue<Record> LogList = new ConcurrentQueue<Record>();
         /// <summary>
         /// Создать логирование
@@ -149,19 +171,19 @@ namespace BattleToad.Log
         public Log(string LogFile = "log.txt")
         {
             FileName = LogFile;
-            WritterThread = new Thread(Writter)
+            WriterThread = new Thread(Writer)
             {
                 IsBackground = true
             };
-            WritterThread.Start();
+            WriterThread.Start();
         }
         private void WriteLog(Record log) => LogList.Enqueue(log);
         /// <summary>
         /// Метод для записи лога
         /// </summary>
-        private void Writter()
+        private void Writer()
         {
-            while (true)
+            while (WriterThread_NoneStop_Trigger)
             {
                 if (LogList.TryDequeue(out Record log_string))
                 {

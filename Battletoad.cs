@@ -334,20 +334,17 @@ namespace BattleToad.Ext
         }
         public static Strings operator -(Strings a, Strings b)
         {
-            Strings result = new Strings();
-            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
+            var result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
             return result;
         }
         public static Strings operator -(Strings a, string[] b)
         {
-            Strings result = new Strings();
-            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
+            var result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
             return result;
         }
         public static Strings operator -(Strings a, List<string> b)
         {
-            Strings result = new Strings();
-            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
+            var result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
             return result;
         }
         public static Strings operator -(Strings a, string b)
@@ -368,19 +365,36 @@ namespace BattleToad.Ext
     public static class Extensions
     {
         /// <summary>
+        /// Возвращается выравненную строку до определенной длины
+        /// </summary>
+        /// <param name="str">исходная  строка</param>
+        /// <param name="length">желаемая длина</param>
+        /// <returns></returns>
+        public static string PadLeftRight(this string str, int length) => str.PadLeftRight(length, ' ');
+        /// <summary>
+        /// Возвращается выравненную указанным символом строку до определенной длины
+        /// </summary>
+        /// <param name="str">исходная  строка</param>
+        /// <param name="length">желаемая длина</param>
+        /// <returns></returns>
+        public static string PadLeftRight(this string str, int length, char ch)
+        {
+            if (length - str.Length <= 0) return str;
+            return str.PadLeft(str.Length + (length - str.Length) / 2, ch).PadRight(length, ch);
+        }
+        /// <summary>
+        /// Получить строку повторение данной строки
+        /// </summary>
+        /// <param name="str">строка</param>
+        /// <param name="repeat">количество повторений</param>
+        /// <returns>новая строка</returns>
+        public static string Repeat(this string str, int repeat) => Addons.StringRepeat(str, repeat);
+        /// <summary>
         /// Распарсить дату и время
         /// </summary>
         /// <param name="str">строка</param>
         /// <returns>DateTime, null - при неуспешной операции</returns>
-        public static DateTime? DateTimeParse(string str)
-        {
-            if (DateTime.TryParse(str, out DateTime date))
-            {
-                return date;
-            }
-            else
-                return null;
-        }
+        public static DateTime? DateTimeParse(this string str) => Addons.DateTimeParse(str);
         /// <summary>
         /// Получить n символов с конца строки
         /// </summary>
@@ -492,6 +506,14 @@ namespace BattleToad.Ext
         /// <param name="count">Количество символов</param>
         /// <param name="end">что поставить в конце, по умолчанию многоточие</param>
         /// <returns></returns>
+        /// <summary>
+        /// Перевести в String
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <param name="splitter">символ для стыковки</param>
+        /// <returns></returns>
+        public static string ToText<T>(this T[] array, string splitter = "\r\n")
+               => string.Join(splitter, array);
         public static string Cut(this string text, int count, string end = "...")
             => text.Length > count ? text.Substring(0, count) + end : text;
         /// <summary>
@@ -508,7 +530,7 @@ namespace BattleToad.Ext
         /// <param name="Type">тип хэша</param>
         /// <returns></returns>
         public static string GetHashString(this string text, Hash.Type Type = Hash.Type.MD5)
-            => Hash.GetHash(Encoding.UTF8.GetBytes(text), Type);
+            => Hash.GetHash(Encoding.Unicode.GetBytes(text), Type);
         /// <summary>
         /// Найди значения по регулярному выражения
         /// </summary>
@@ -553,20 +575,6 @@ namespace BattleToad.Ext
             text.Substring(text.Length - count);
         }
         //String[] and List<string>
-        /// <summary>
-        /// Перевести в String
-        /// </summary>
-        /// <param name="text">строка</param>
-        /// <param name="splitter">символ для стыковки</param>
-        /// <returns></returns>
-        public static string ToText(this string[] text, string splitter = "\r\n")
-               => string.Join(splitter, text);
-        /// <summary>
-        /// Перевести в String
-        /// </summary>
-        /// <param name="text">строка</param>
-        /// <param name="splitter">символ для стыковки</param>
-        /// <returns></returns>
         public static string ToText(this List<string> text, string splitter = "\r\n")
             => string.Join(splitter, text);
         /// <summary>
@@ -732,6 +740,32 @@ namespace BattleToad.Ext
     /// </summary>
     public static class Addons
     {
+        /// <summary>
+        /// Получить строку повторение данной строки
+        /// </summary>
+        /// <param name="str">строка</param>
+        /// <param name="repeat">количество повторений</param>
+        /// <returns>новая строка</returns>
+        public static string StringRepeat(this string str, int repeat)
+        {
+            var builder = new StringBuilder();
+            for (int i = 0; i < repeat; i++) builder.Append(str);
+            return builder.ToString();
+        }
+        /// <summary>
+        /// Распарсить дату и время
+        /// </summary>
+        /// <param name="str">строка</param>
+        /// <returns>DateTime, null - при неуспешной операции</returns>
+        public static DateTime? DateTimeParse(string str)
+        {
+            if (DateTime.TryParse(str, out DateTime date))
+            {
+                return date;
+            }
+            else
+                return null;
+        }
         /// <summary>
         /// Вызывает MessageBox ошибки
         /// </summary>
