@@ -21,6 +21,23 @@ namespace BattleToad.JSONHelper
         /// <returns></returns>
         public static T FromJson<T>(this string json) => Deserialize<T>(json);
         /// <summary>
+        /// В класс из JSON, не выдает Exception, если не удалось, то возвращает значение по умолчанию
+        /// </summary>
+        /// <typeparam name="T">класс</typeparam>
+        /// <param name="json">JSON</param>
+        /// <returns></returns>
+        public static T FromJsonWithoutException<T>(this string json)
+        {
+            try
+            {
+                return Deserialize<T>(json);
+            }
+            catch
+            {
+                return default;
+            }
+        }
+        /// <summary>
         /// Класс в JSON
         /// </summary>
         /// <typeparam name="T">класс</typeparam>

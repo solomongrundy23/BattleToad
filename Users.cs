@@ -56,7 +56,7 @@ namespace BattleToad.Users
         public bool CheckPasswordHash(string password_hash) => _Password == password_hash;
     }
 
-    private static class PasswordChecker
+    internal static class PasswordChecker
     {
         public static void CheckNewPassword(string password)
         {
