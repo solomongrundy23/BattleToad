@@ -10,8 +10,6 @@ using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Threading.Tasks;
-using System.Drawing;
-using System.Windows.Forms;
 
 namespace BattleToad.Ext
 {
@@ -24,20 +22,24 @@ namespace BattleToad.Ext
     /// </summary>
     public static class Extensions
     {
+        public static string RemoveText(this string str, string text) => str.Replace(text, "");
+        public static string RemoveTextStartEnd(this string str, string text) => str.RemoveTextStart(text).RemoveTextEnd(text);
+        public static string RemoveTextStart(this string str, string text) => str.StartsWith(text) ? str.Substring(text.Length) : text;
+        public static string RemoveTextEnd(this string str, string text) => str.EndsWith(text) ? str.Substring(0, str.Length - text.Length) : text;
         /// <summary>
         /// Возвращается выравненную строку до определенной длины
         /// </summary>
         /// <param name="str">исходная  строка</param>
         /// <param name="length">желаемая длина</param>
         /// <returns></returns>
-        public static string PadLeftRight(this string str, int length) => str.PadLeftRight(length, ' ');
+        public static string ToStringAndPad(this int num, int length, char ch = ' ') => num.ToString().Pad(length, ' ');
         /// <summary>
         /// Возвращается выравненную указанным символом строку до определенной длины
         /// </summary>
         /// <param name="str">исходная  строка</param>
         /// <param name="length">желаемая длина</param>
         /// <returns></returns>
-        public static string PadLeftRight(this string str, int length, char ch)
+        public static string Pad(this string str, int length, char ch = ' ')
         {
             if (length - str.Length <= 0) return str;
             return str.PadLeft(str.Length + (length - str.Length) / 2, ch).PadRight(length, ch);
@@ -325,6 +327,13 @@ namespace BattleToad.Ext
                 return result;
             }
         }
+        public static byte[] GetHashBytes(byte[] bytes, Type type = Type.MD5)
+        {
+            using (HashAlgorithm algorithm = GetAlgorithm(type))
+            {
+                return algorithm.ComputeHash(bytes);
+            }
+        }
         /// <summary>
         /// Получить ХЭШ из строки
         /// </summary>
@@ -333,6 +342,14 @@ namespace BattleToad.Ext
         /// <returns></returns>
         public static string GetHashFromString(string text, Type type = Type.MD5)
             => GetHash(Encoding.Unicode.GetBytes(text), type);
+        /// <summary>
+        /// Получить ХЭШ из строки
+        /// </summary>
+        /// <param name="text">строка</param>
+        /// <param name="type">алгоритм</param>
+        /// <returns></returns>
+        public static string GetHashBase64StringFromString(string text, Type type = Type.MD5)
+            => Convert.ToBase64String(GetHashBytes(Encoding.Unicode.GetBytes(text), type));
         /// <summary>
         /// Получить ХЭШ от времени сейчас
         /// </summary>
@@ -399,57 +416,6 @@ namespace BattleToad.Ext
             }
             else
                 return null;
-        }
-        /// <summary>
-        /// Вызывает MessageBox ошибки
-        /// </summary>
-        /// <param name="text">текст сообщение</param>
-        /// <param name="title">текст названия</param>
-        public static void MessageError(string text, string title = "Ошибка")
-            => MessageBox.Show(text, title, MessageBoxButtons.OK, MessageBoxIcon.Error);
-        /// <summary>
-        /// Вызывает MessageBox предупреждения
-        /// </summary>
-        /// <param name="text">текст сообщение</param>
-        /// <param name="title">текст названия</param>
-        public static void MessageWarning(string text, string title = "Внимание")
-                    => MessageBox.Show(text, title, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        /// <summary>
-        /// Вызывает MessageBox информации
-        /// </summary>
-        /// <param name="text">текст сообщение</param>
-        /// <param name="title">текст названия</param>
-        public static void MessageInfo(string text, string title = "Сообщение")
-                    => MessageBox.Show(text, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
-        /// <summary>
-        /// Вызывает MessageBox подтверждения
-        /// </summary>
-        /// <param name="text">текст сообщение</param>
-        /// <param name="title">текст названия</param>
-        /// <returns>Результат диалога</returns>
-        public static void MessageConfirmation(string text, string title = "Подтверждение")
-                    => MessageBox.Show(text, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-        /// <summary>
-        /// Вызывает MessageBox подтверждения с ошибкой
-        /// </summary>
-        /// <param name="text">текст сообщение</param>
-        /// <param name="title">текст названия</param>
-        /// <returns>Результат диалога</returns>
-        public static DialogResult MessageConfirmationWarning(string text, string title = "Внимание")
-            => MessageBox.Show(text, title, MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-        /// <summary>
-        /// Получить размер отображаемого текста
-        /// </summary>
-        /// <param name="form">Форма, на которой расположен элемент</param>
-        /// <param name="text">Текст</param>
-        /// <param name="font">Шрифт текста</param>
-        /// <returns>Структура с размерами текста</returns>
-        public static SizeF GetTextSize(Form form, string text, Font font)
-        {
-            using (Graphics g = Graphics.FromHwnd(form.Handle))
-            {
-                return g.MeasureString(text, font);
-            }
         }
         /// <summary>
         /// Поменять переменные значениями

@@ -184,6 +184,7 @@ namespace BattleToad.PhoneRange
                     ToMasks(range.Min, range.Max)
                     .Select(x => x.ToString()).ToArray());
             }
+            CompressDots(ref result);
             return result;
         }
 
@@ -232,16 +233,24 @@ namespace BattleToad.PhoneRange
                     temp_s += AddDots(ref old);
                     result.Add("^" + temp_s + "$");
                 }
-                result = result.Select(x => x.Replace("[0-9]", "0")).ToList();
+                result = result.Select(x => x.Replace("[0-9]", ".")).ToList();
             }
+            CompressDots(ref result);
             return result;
         }
 
-        private string AddDots(ref string old)
+        private string GetDots(int i)
         {
             string result = "";
-            for (int i = old.Length; i < 10; i++) result += ".";
+            while (result.Length < i) i += '.';
             return result;
+        }
+        private string AddDots(ref string old) => GetDots(10 - old.Length);
+        private void CompressDots(ref List<string> data)
+        {
+            for (int i = 10; i >= 0; i--)
+                for (int j = 0; j < data.Count; i++)
+                    data[j] = data[j].Replace(GetDots(i), ".{" + i.ToString() + "}");
         }
 
         private IEnumerable<UInt64> ToMasks(UInt64 start, UInt64 end)

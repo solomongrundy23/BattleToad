@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using BattleToad.Ext;
 
-namespace BattleToad.Log
+namespace BattleToad.Logs
 {
     /// <summary>
     /// Абстрактный класс с логированием для наследования, нужно переопределить GetLogString(), чтобы метод WriteLog мог получить строку из класса для записи в лог
@@ -43,8 +43,7 @@ namespace BattleToad.Log
         /// <param name="str">строка</param>
         /// <param name="log">экземпляр класса Log</param>
         /// <param name="title">название записи</param>
-        public static void Log(this string str, Log log, string title = "")
-            => log.Write(str, title);
+        public static void Log(this string str, Log log, string title = "") => log.Write(str, title);
         /// <summary>
         /// Записать данные класса в лог(класс Log)
         /// </summary>
@@ -54,10 +53,24 @@ namespace BattleToad.Log
         /// <param name="title">название записи</param>
         /// <param name="private_data">отображать приватные данные</param>
         /// <param name="data_type">отображать тип данных</param>
-        public static void LogClass<T>(this T obj, Log log, string title = "", bool private_data = false, bool data_type = false)
-        {
-            log.WriteClass(obj, title, private_data, data_type);
-        }
+        public static void LogClass<T>(this T obj, Log log, string title = "", bool private_data = false, bool data_type = false) 
+            => log.WriteClass(obj, title, private_data, data_type);
+        /// <summary>
+        /// Записать в лог строку
+        /// </summary>
+        /// <param name="str">строка</param>
+        /// <param name="title">название записи</param>
+        public static void Log(this string str, string title = "") => Logs.Log.GetInstance().Write(str, title);
+        /// <summary>
+        /// Записать данные класса в лог(класс Log)
+        /// </summary>
+        /// <typeparam name="T">тип</typeparam>
+        /// <param name="obj">объект</param>
+        /// <param name="title">название записи</param>
+        /// <param name="private_data">отображать приватные данные</param>
+        /// <param name="data_type">отображать тип данных</param>
+        public static void LogClass<T>(this T obj, string title = "", bool private_data = false, bool data_type = false)
+                        => Logs.Log.GetInstance().WriteClass(obj, title, private_data, data_type);
     }
     /// <summary>
     /// Класс для логирования

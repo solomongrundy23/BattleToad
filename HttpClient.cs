@@ -35,7 +35,7 @@ namespace BattleToad.FastHttpClient
             public Response(HttpStatusCode code, string text, string error)
             {
                 resp_statusCode = code;
-                ResponseString = text;
+                Answer = text;
                 Error = error;
             }
             //Создает новый ответ только с ошибкой
@@ -64,7 +64,7 @@ namespace BattleToad.FastHttpClient
             /// <summary>
             /// Текст ответа
             /// </summary>
-            public readonly string ResponseString;
+            public readonly string Answer;
             private readonly HttpStatusCode resp_statusCode;
             /// <summary>
             /// Получить Код, Текст ошибки и Ответ в виде строки, например, для логирования
@@ -76,7 +76,7 @@ namespace BattleToad.FastHttpClient
                     StringBuilder stringBuilder = new StringBuilder();
                     if (StatusCode != 0) stringBuilder.AppendLine($"Код: {StatusCodeString}");
                     if (Error != null) stringBuilder.AppendLine($"Ошибка: {Error}");
-                    if (ResponseString != null) stringBuilder.Append($"Ответ: {ResponseString}");
+                    if (Answer != null) stringBuilder.Append($"Ответ: {Answer}");
                     return stringBuilder.ToString();
                 }
             }
