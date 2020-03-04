@@ -87,6 +87,21 @@ namespace BattleToad.Ext
         public static int ToInt(this string text, int default_value = int.MinValue)
            => Addons.ToInt(text, default_value);
         /// <summary>
+        /// Получить Base64 из строки
+        /// </summary>
+        /// <param name="text">текст</param>
+        /// <returns></returns>
+        public static string GetBase64String(this string text)
+            => GetBase64String(text, Encoding.Default);
+        /// <summary>
+        /// Получить Base64 из строки
+        /// </summary>
+        /// <param name="text">текст</param>
+        /// <param name="encoding">Кодировка</param>
+        /// <returns></returns>
+        public static string GetBase64String(this string text, Encoding encoding)
+            => encoding.GetBytes(text).GetBase64String();
+        /// <summary>
         /// Быстро и безболезнено перевести в long
         /// </summary>
         /// <param name="text"></param>
@@ -289,6 +304,14 @@ namespace BattleToad.Ext
         public static string[] PrintClassValues<T>(this T obj, bool Sort = false, bool ShowPrivate = false, 
             bool ShowTypes = false)
             => Addons.PrintValuesInClass<T>(obj, Sort, ShowPrivate, ShowTypes);
+        /// <summary>
+        /// Получить Base64 из массива байт
+        /// </summary>
+        /// <param name="text">текст</param>
+        /// <param name="encoding">Кодировка</param>
+        /// <returns></returns>
+        public static string GetBase64String(this byte[] data)
+            => Convert.ToBase64String(data);
     }
     /// <summary>
     /// Класс для упрощения работы с хэшированием
@@ -340,22 +363,19 @@ namespace BattleToad.Ext
         /// <param name="text">строка</param>
         /// <param name="type">алгоритм</param>
         /// <returns></returns>
-        public static string GetHashFromString(string text, Type type = Type.MD5)
-            => GetHash(Encoding.Unicode.GetBytes(text), type);
-        /// <summary>
-        /// Получить ХЭШ из строки
-        /// </summary>
-        /// <param name="text">строка</param>
-        /// <param name="type">алгоритм</param>
-        /// <returns></returns>
-        public static string GetHashBase64StringFromString(string text, Type type = Type.MD5)
-            => Convert.ToBase64String(GetHashBytes(Encoding.Unicode.GetBytes(text), type));
+        public static string GetHashFromString(string text, Type type = Type.MD5, Encoding encoding = null)
+            => GetHash(GetBytes(text, encoding), type);
+        private static byte[] GetBytes(string text, Encoding encoding = null)
+        {
+            if (encoding == null) encoding = Encoding.Default;
+            return encoding.GetBytes(text);
+        }
         /// <summary>
         /// Получить ХЭШ от времени сейчас
         /// </summary>
         /// <param name="type">алгоритм</param>
         /// <returns></returns>
-        public static string GetHashFromDateTime(Type type = Type.MD5)
+        public static string GetHashFromDateTime(Type type = Type.MD5, Encoding encoding = null)
             => GetHashFromString(Addons.GetNow(), type);
         /// <summary>
         /// Получить ХЭШ файла
@@ -379,11 +399,7 @@ namespace BattleToad.Ext
         /// <param name="path">путь к файлу</param>
         /// <returns></returns>
         public static async Task<string> ComputeFileChecksumAsync(string path)
-        {
-            Task<string> Getter = new Task<string>(() => ComputeFileChecksum(path));
-            Getter.Start();
-            return await Getter;
-        }
+            => await Task.Run(() => ComputeFileChecksum(path));
     }
 
     /// <summary>
