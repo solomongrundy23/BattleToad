@@ -84,7 +84,14 @@ namespace BattleToad.Ext
         /// <param name="text"></param>
         /// <param name="default_value"></param>
         /// <returns></returns>
-        public static int ToInt(this string text, int default_value = int.MinValue)
+        public static int ToIntOrDefault(this string text, int default_value = int.MinValue)
+           => Addons.ToIntOrDeafault(text, default_value);
+        /// <summary>
+        /// Быстро перевести в int, если не удается, то вернёт Null
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static int? ToInt(this string text, int default_value = int.MinValue)
            => Addons.ToInt(text, default_value);
         /// <summary>
         /// Получить Base64 из строки
@@ -376,7 +383,7 @@ namespace BattleToad.Ext
         /// <param name="type">алгоритм</param>
         /// <returns></returns>
         public static string GetHashFromDateTime(Type type = Type.MD5, Encoding encoding = null)
-            => GetHashFromString(Addons.GetNow(), type);
+            => GetHashFromString(Addons.GetNow(), type, encoding);
         /// <summary>
         /// Получить ХЭШ файла
         /// </summary>
@@ -572,8 +579,15 @@ namespace BattleToad.Ext
         /// <param name="text"></param>
         /// <param name="default_value"></param>
         /// <returns></returns>
-        public static int ToInt(string text, int default_value = int.MinValue)
+        public static int ToIntOrDeafault(string text, int default_value = int.MinValue)
             => int.TryParse(text, out int x) ? x : default_value;
+        /// <summary>
+        /// Быстро перевести в int, если не удастся, то вернёт Null
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
+        public static int? ToInt(string text, int default_value = int.MinValue)
+            => int.TryParse(text, out int x) ? (int?)x : null;
         /// <summary>
         /// Быстро и безболезнено перевести в long
         /// </summary>
