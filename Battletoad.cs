@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BattleToad.Ext
+namespace BattleToad
 {
     /// <summary>
     /// Цивилизованная многопоточная очередь
@@ -274,11 +274,10 @@ namespace BattleToad.Ext
         /// <param name="dictionary">словарь</param>
         /// <param name="KeyValueSplitter">символ(ы) для стыковки</param>
         /// <returns></returns>
-        public static string ToText<K, V>(this Dictionary<K, V> dictionary, 
+        public static string ToText<K, V>(this Dictionary<K, V> dictionary,
             string KeyValueSplitter = "\t")
-            => string.Join(Environment.NewLine, 
+            => string.Join(Environment.NewLine,
                 dictionary.Select(x => $"{x.Key}{KeyValueSplitter}{x.Value}").ToArray());
-
         //<T>
         /// <summary>
         /// Вывести значение
@@ -286,10 +285,10 @@ namespace BattleToad.Ext
         /// <param name="value">пересенная</param>
         /// <param name="key">указать имя переменной</param>
         /// <returns></returns>
-        public static string PrintValue<T>(this T value, string key = "value", 
+        public static string PrintValue<T>(this T value, string key = "value",
             bool multi_line_value = false)
-            => 
-            multi_line_value ? 
+            =>
+            multi_line_value ?
             $"{key}=\"{Environment.NewLine}{value}{Environment.NewLine}\""
             :
             $"{key}=\"{value}\"";
@@ -308,7 +307,7 @@ namespace BattleToad.Ext
         /// <param name="ShowPrivate">отображать приватные</param>
         /// <param name="ShowTypes">отображать тип переменных</param>
         /// <returns></returns>
-        public static string[] PrintClassValues<T>(this T obj, bool Sort = false, bool ShowPrivate = false, 
+        public static string[] PrintClassValues<T>(this T obj, bool Sort = false, bool ShowPrivate = false,
             bool ShowTypes = false)
             => Addons.PrintValuesInClass<T>(obj, Sort, ShowPrivate, ShowTypes);
         /// <summary>
@@ -458,7 +457,7 @@ namespace BattleToad.Ext
         /// <param name="str">проверяемая строка</param>
         /// <returns>true, если совпадает, инача false</returns>
         public static bool DateMatchRegex(string str)
-            => Regex.IsMatch(str, 
+            => Regex.IsMatch(str,
                 "((0[1-9])|([12]\\d)|(3[01])).((0[1-9])|(1[012])).(19|20|21)\\d\\d");
 
         public static DateTime? GetDateFromDayMonthYear(int Day, int Month, int Year)
@@ -485,7 +484,7 @@ namespace BattleToad.Ext
         /// <returns></returns>
         public static string Decor(string text, int max_line_length = 1024, string indent = "")
         {
-            if (max_line_length <= indent.Length) 
+            if (max_line_length <= indent.Length)
                 throw new Exception("Максимальная длина не может быть меньше длины отступа");
             max_line_length -= indent.Length;
             var result = new StringBuilder();
@@ -510,9 +509,9 @@ namespace BattleToad.Ext
             }
             else
             {
-                string result = 
-                    str.Substring(start, length + start > str.Length ? 
-                    str.Length - start : length );
+                string result =
+                    str.Substring(start, length + start > str.Length ?
+                    str.Length - start : length);
                 string temp = "";
                 if (start > 0) temp += str.Substring(0, start);
                 if (length + start < str.Length) temp += str.Substring(length + start, str.Length - length - start);
@@ -603,10 +602,10 @@ namespace BattleToad.Ext
         /// <param name="ShowPrivate">отображать приватные</param>
         /// <param name="ShowTypes">отображать тип переменных</param>
         /// <returns></returns>
-        public static string[] PrintValuesInClass<T>(T obj, bool Sort = false, 
+        public static string[] PrintValuesInClass<T>(T obj, bool Sort = false,
             bool ShowPrivate = false, bool ShowTypes = false)
         {
-            if (obj == null) return new string[]{"Null"};
+            if (obj == null) return new string[] { "Null" };
             List<string> result = new List<string>();
             BindingFlags flags = ShowPrivate ?
                 BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
@@ -693,7 +692,7 @@ namespace BattleToad.Ext
         /// </summary>
         /// <param name="hexString">строка с hex</param>
         /// <returns></returns>
-        public static int GetByteFromHexString(string hexString) => 
+        public static int GetByteFromHexString(string hexString) =>
             int.Parse(hexString, NumberStyles.HexNumber);
     }
 
@@ -1070,6 +1069,50 @@ namespace BattleToad.Ext
     public static class OneToFirst
     {
         /// <summary>
+        /// задать числительный 
+        /// </summary>
+        public class Quantitatively
+        {
+            private Quantitatively() { }
+            /// <summary>
+            /// Создать экземпляр с вариантами слова в зависимости от количества
+            /// </summary>
+            /// <param name="one">Вариант, если один предмет</param>
+            /// <param name="many">Вариант, если два предмета</param>
+            /// <param name="veryMany">Вариант, если много предметов</param>
+            public Quantitatively(string one, string two, string many)
+            {
+                _One = one;
+                _Two = two;
+                _Many = many;
+            }
+            private string _One;
+            private string _Two;
+            private string _Many;
+            public string ToString(int count = 0)
+            {
+                if (count >= 10 && count < 20) return _Many;
+                char last = count.ToString().Last();
+                switch (last)
+                {
+                    case '1':
+                        return _One;
+                    case '2':
+                    case '3':
+                    case '4':
+                        return _Two;
+                    case '0':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        return _Many;
+                    default: return count.ToString();
+                }
+            }
+        }
+        /// <summary>
         /// Вывод возраста, добавляет к числу слово год/лет в зависимости от числа
         /// </summary>
         /// <param name="years">количество лет</param>
@@ -1080,11 +1123,11 @@ namespace BattleToad.Ext
             char last = years.ToString().Last();
             switch (last)
             {
-                case '1': 
+                case '1':
                     return $"{years} год";
-                case '2': 
-                case '3': 
-                case '4': 
+                case '2':
+                case '3':
+                case '4':
                     return $"{years} года";
                 case '0':
                 case '5':
@@ -1147,10 +1190,10 @@ namespace BattleToad.Ext
     {
         public enum NotifyType
         {
-            Normal  = 0,
+            Normal = 0,
             Message = 1,
             Warning = 2,
-            Error   = 3
+            Error = 3
         }
         /// <summary>
         /// Класс уведомления
@@ -1166,8 +1209,8 @@ namespace BattleToad.Ext
             public Notify(string text, string title = "", NotifyType type = NotifyType.Normal)
             {
                 Title = title;
-                Text  = text;
-                Type  = type;
+                Text = text;
+                Type = type;
             }
             /// <summary>
             /// текст уведомления
@@ -1198,7 +1241,12 @@ namespace BattleToad.Ext
             /// Получить сущность Notifier, если сущность не задана, то создается новый экзепляр
             /// </summary>
             /// <returns></returns>
-            public static Notifier GetInstance() => instance ??= new Notifier();
+            public static Notifier GetInstance()
+            {
+                if (instance == null) instance = new Notifier();
+                return instance;
+            }
+
             private readonly ConcurrentQueue<Notify> Notifies;
             private readonly ConcurrentQueue<Notify> Instants;
             /// <summary>
@@ -1243,7 +1291,7 @@ namespace BattleToad.Ext
             /// </summary>
             /// <param name="text">текст уведомления</param>
             /// <param name="title">название уведомления</param>
-            public void Instant(string text, string title = "", 
+            public void Instant(string text, string title = "",
                                 NotifyType type = NotifyType.Normal)
                 => Instant(new Notify(text, title, type));
         }
@@ -1257,9 +1305,9 @@ namespace BattleToad.Ext
         public static readonly string Words = @"[^(\w)|\-)]";
         public static readonly string Digits = @"[^\d]";
         public static readonly string DigitsAndLetters = @"([^\w])|\d";
-        public static readonly string Date 
+        public static readonly string Date
             = @"((0[1-9])|([12]\\d)|(3[01])).((0[1-9])|(1[012])).(19|20|21)\\d\\d";
-        public static readonly string IPv4 
+        public static readonly string IPv4
             = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$";
         public static readonly string KeyValue = @"^(\w+)=(.*)$";
     }
