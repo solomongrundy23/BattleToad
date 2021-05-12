@@ -5,7 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using BattleToad.Ext;
+using BattleToad.Extensions;
 
 namespace BattleToad.Logs
 {

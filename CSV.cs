@@ -1,4 +1,4 @@
-﻿using BattleToad.Ext;
+﻿using BattleToad.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using BattleToad.Ext;
+using BattleToad.Extensions;
 
 namespace BattleToad.Users
 {

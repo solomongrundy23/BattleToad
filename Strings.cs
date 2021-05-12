@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
-using BattleToad.Ext;
+using BattleToad.Extensions;
 
 namespace BattleToad.Strings
 {
@@ -79,7 +79,7 @@ namespace BattleToad.Strings
         /// </summary>
         public void RemoveEmpty()
         {
-            this.Remove("");
+            this.RemoveAll(x => x == string.Empty || x == null);
         }
         /// <summary>
         /// Сортировка Strings без учетка длины
@@ -166,48 +166,6 @@ namespace BattleToad.Strings
                 }
             }
         }
-        public override string ToString() => this.ToText();
-        /// <summary>
-        /// Преобразовать в очередь(Queue)
-        /// </summary>
-        /// <returns></returns>
-        public Queue<string> ToQueue()
-        {
-            var result = new Queue<string>();
-            foreach (string str in this)
-            {
-                result.Enqueue(str);
-            }
-            return result;
-        }
-        /// <summary>
-        /// Преобразовать в кучу(Stack)
-        /// </summary>
-        /// <returns></returns>
-        public Stack<string> ToStack()
-        {
-            var result = new Stack<string>();
-            foreach (string str in this)
-            {
-                result.Push(str);
-            }
-            return result;
-        }
-        /// <summary>
-        /// Объединить в один String
-        /// </summary>
-        /// <param name="splitter"></param>
-        /// <returns></returns>
-        public string Join(string splitter) => string.Join(splitter, this);
-        /// <summary>
-        /// Оставить только уникальные значения
-        /// </summary>
-        public void JustUnique()
-        {
-            IEnumerable<string> temp = this.Distinct();
-            this.Clear();
-            this.AddRange(temp);
-        }
         /// <summary>
         /// Загрузить из файла
         /// </summary>
@@ -271,78 +229,6 @@ namespace BattleToad.Strings
             catch (Exception ex)
             {
                 throw new Exception($"Ошибка сохранения файла: {ex.Message}");
-            }
-        }
-        /// <summary>
-        /// Перемешать строки в случайном порядке
-        /// </summary>
-        public void Shuffle()
-        {
-            var temp = new List<string>();
-            temp.AddRange(this);
-            this.Clear();
-            var rnd = new Random();
-            while (temp.Count > 0)
-            {
-                int r = rnd.Next(temp.Count);
-                this.Add(temp[r]);
-                temp.RemoveAt(r);
-            }
-        }
-        /// <summary>
-        /// Получить и удалить строку по индексу
-        /// </summary>
-        /// <param name="index">индекс строки</param>
-        /// <returns></returns>
-        public string Extract(int index)
-        {
-            try
-            {
-                string result = this[index];
-                this.RemoveAt(index);
-                return result;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-        /// <summary>
-        /// Получить и удалить первую строку
-        /// </summary>
-        /// <returns></returns>
-        public string ExtractFirst() => Extract(0);
-        /// <summary>
-        /// Получить и удалить последнюю строку
-        /// </summary>
-        /// <returns></returns>
-        public string ExtractLast() => Extract(this.Count - 1);
-        /// <summary>
-        /// Получить случайную строку
-        /// </summary>
-        /// <returns></returns>
-        public string RandomString()
-        {
-            Random rnd = new Random();
-            int x = rnd.Next(this.Count());
-            return this[x];
-        }
-        /// <summary>
-        /// Получить случайную строку и удалить
-        /// </summary>
-        /// <returns></returns>
-        public string ExtractRandom()
-        {
-            int? x = null;
-            try
-            {
-                Random rnd = new Random();
-                x = rnd.Next(this.Count());
-                return this[x.Value];
-            }
-            finally
-            {
-                if (x != null) this.RemoveAt(x.Value);
             }
         }
 

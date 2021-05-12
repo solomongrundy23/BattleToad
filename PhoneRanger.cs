@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using BattleToad.Ext;
+using BattleToad.Extensions;
+using BattleToad.Ranges;
 
 namespace BattleToad.PhoneRange
 {
@@ -21,7 +22,7 @@ namespace BattleToad.PhoneRange
         /// <summary>
         /// Список диапозонов, при добавлении диапозонов вручную нужно обеспечивать праверку правильности заполнения диапозонами номера
         /// </summary>
-        public List<Range> Ranges = new List<Range>();
+        public List<Range<ulong>> Ranges = new List<Range<ulong>>();
         /// <summary>
         /// Получить список диапозонов из текста, содержащего телефонные номера
         /// </summary>
@@ -48,7 +49,7 @@ namespace BattleToad.PhoneRange
                     .OrderBy(x => x)
                     .ToArray();
                 if (nums.Length == 0) return;
-                var range = new Range(nums[0], nums[0]);
+                var range = new Range<ulong>(nums[0], nums[0]);
                 for (int i = 1; i < nums.Count(); i++)
                 {
                     if (range.Max + 1 == nums[i])
@@ -58,7 +59,7 @@ namespace BattleToad.PhoneRange
                     else
                     {
                         Ranges.Add(range);
-                        range = new Range(nums[i], nums[i]);
+                        range = new Range<ulong>(nums[i], nums[i]);
                     }
                 }
                 if (Ranges.Count == 0)
@@ -148,7 +149,7 @@ namespace BattleToad.PhoneRange
             }
         }
 
-        private string Cut(Range range)
+        private string Cut(Range<ulong> range)
         {
             try
             {
@@ -169,7 +170,7 @@ namespace BattleToad.PhoneRange
             }
         }
 
-        private List<string> Dissolution(Range range)
+        private List<string> Dissolution(Range<ulong> range)
         {
             var result = new List<string>();
 
@@ -188,7 +189,7 @@ namespace BattleToad.PhoneRange
             return result;
         }
 
-        private List<string> DissolutionCompress(Range range)
+        private List<string> DissolutionCompress(Range<ulong> range)
         {
             var result = new List<string>();
             string Cutted = Cut(range);
@@ -253,7 +254,7 @@ namespace BattleToad.PhoneRange
                     data[j] = data[j].Replace(GetDots(i), ".{" + i.ToString() + "}");
         }
 
-        private IEnumerable<UInt64> ToMasks(UInt64 start, UInt64 end)
+        private IEnumerable<ulong> ToMasks(ulong start, ulong end)
         {
             while (start <= end)
             {

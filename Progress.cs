@@ -1,13 +1,13 @@
 ﻿using BattleToad.ConsoleAddons;
-using BattleToad.Ext;
+using BattleToad.Extensions;
 using System;
 
-namespace BattleToad.Progress
+namespace BattleToad.ConsoleAddons
 {
     /// <summary>
     /// Текстовый прогрессбар
     /// </summary>
-    public class Progress
+    public class ProgressBar
     {
         private int max;
         private int Length => length ?? Console.WindowWidth;
@@ -19,7 +19,7 @@ namespace BattleToad.Progress
         /// </summary>
         /// <param name="Max"></param>
         /// <param name="Length"></param>
-        public Progress(int Max, int theme = 0, int? Length = null)
+        public ProgressBar(int Max, int theme = 0, int? Length = null)
         {
             if (Length < 10) throw new Exception($"Длина {Length} слишком мала, должна быть больше или равна 10");
             max = Max;
@@ -36,6 +36,11 @@ namespace BattleToad.Progress
                 7 => Theme8,
                 8 => Theme9,
                 9 => Theme10,
+                10 => Theme11,
+                11 => Theme12,
+                12 => Theme13,
+                13 => Theme14,
+                14 => Theme15,
                 _ => Theme1
             };
         }
@@ -44,7 +49,7 @@ namespace BattleToad.Progress
         private string Theme1(int value)
         {
             if (value > max) value = max;
-            return value == max ? "OK" : $"{value * 100 / max}%".Cut(Length).PadRight(Length, ' ');
+            return value == max ? "OK".PadRight(Length, ' ') : $"{value * 100 / max}%".PadRight(Length, ' ');
         }
         private string Theme2(int value)
         {
@@ -114,12 +119,11 @@ namespace BattleToad.Progress
             if (value > max) value = max;
             string result = "";
             int _max = value * Length / max;
-            result = result.PadLeft(_max, '1');
             return
                 value ==
                 max ? $"OK".PadRight(Length, ' ')
                 :
-                $"{result.PadRight(Length, '0')}";
+                $"{result.PadLeft(_max, '|').PadRight(Length, '.')}";
         }
         private string Theme9(int value)
         {
@@ -136,12 +140,75 @@ namespace BattleToad.Progress
         private string Theme10(int value)
         {
             if (value > max) value = max;
-            int result = 9 - value * 10 / max;
+            string result = "";
+            int _max = value * (Length - 6) / max;
+            return
+                max == value ?
+                "OK".PadRight(Length, ' ')
+                :
+               $"{value * 100 / max}%".PadRight(4, ' ')
+               +
+                $"[{(result.PadLeft(_max, '=') + '>').PadRight(Length - 6, '.')}]";
+        }
+
+        private string Theme11(int value)
+        {
+            if (value > max) value = max;
+            string result = "";
+            int _max = value * Length / max;
             return
                 value ==
                 max ? $"OK".PadRight(Length, ' ')
                 :
-                $"{(result.ToString()).PadRight(Length, ' ')}";
+                $"{result.PadLeft(_max, ':').PadRight(Length, '.')}";
+        }
+
+        private string Theme12(int value)
+        {
+            if (value > max) value = max;
+            string result = "";
+            int _max = value * Length / max;
+            return
+                value ==
+                max ? $"OK".PadRight(Length, ' ')
+                :
+                $"{result.PadLeft(_max, '!').PadRight(Length, '.')}";
+        }
+
+        private string Theme13(int value)
+        {
+            if (value > max) value = max;
+            string result = "";
+            int _max = value * Length / max;
+            return
+                value ==
+                max ? $"OK".PadRight(Length, ' ')
+                :
+                $"{result.PadRight(_max, ' ').PadLeft(Length, '*')}";
+        }
+
+        private string Theme14(int value)
+        {
+            if (value > max) value = max;
+            string result = "";
+            int _max = value * (Length - 6) / max;
+            return
+                max == value ?
+                "OK".PadRight(Length, ' ')
+                :
+               $"{value * 100 / max}%".PadRight(4, ' ')
+               +
+                $"[{(result.PadLeft(_max, '-') + '>').PadRight(Length - 6, '.')}]";
+        }
+
+        private string Theme15(int value)
+        {
+            if (value > max) value = max;
+            return
+                max == value ?
+                "OK".PadRight(Length, ' ')
+                :
+               $"{(value * 100 / max).ToString().PadLeft(3, '0').PadRight(Length)}";
         }
 
         /// <summary>

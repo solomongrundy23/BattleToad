@@ -10,12 +10,12 @@ namespace BattleToad.ConsoleAddons
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="obj"></param>
-        public static void WriteInConsole<T>(this T obj) => Console.Write(obj);
+        public static void ConsoleWrite<T>(this T obj) => Console.Write(obj);
         /// <summary>
         /// Вывести в консоль значение переменной с переходом на новую строку
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        public static void WriteLineInConsole<T>(this T obj) => Console.WriteLine(obj);
+        public static void ConsoleWriteLine<T>(this T obj) => Console.WriteLine(obj);
         /// <summary>
         /// Вывести текст и считать переменную из консоли
         /// </summary>
@@ -110,7 +110,16 @@ namespace BattleToad.ConsoleAddons
         /// <param name="text">текст</param>
         public static void PrintError(string text) => PrintColor(text, ConsoleColor.White, ConsoleColor.DarkRed);
         /// <summary>
-        /// Console.WriteLine с указанием позиции и белым текстом
+        /// Console.WriteLine с указанием позиции
+        /// </summary>
+        /// <param name="text">текст</param>
+        /// <param name="x">x</param>
+        public static void PrintAtPoint(string text, int x)
+        {
+            PrintAtPoint(text, x, Console.CursorTop);
+        }
+        /// <summary>
+        /// Console.WriteLine с указанием позиции
         /// </summary>
         /// <param name="text">текст</param>
         /// <param name="x">x</param>

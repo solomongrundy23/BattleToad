@@ -1,4 +1,4 @@
-﻿using BattleToad.Ext;
+﻿using BattleToad.Ranges;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -162,7 +162,7 @@ namespace BattleToad.RosSvyaz
         }
     }
 
-    public class Record : Range
+    public class Record : Range<ulong>
     {
         public Record(string param_string)
         {
