@@ -11,7 +11,7 @@ namespace BattleToad.Extensions
     /// </summary>
     public static class Extensions
     {
-        public static string ToQuantitativelyText(this int count, OneToFirst.Quantitatively quantitatively) => $"{count} {quantitatively.ToString(count)}";
+        public static string ToQuantitativelyText(this int count, OneToFirst.Quantitatively quantitatively) => quantitatively.ToString(count);
         /// <summary>
         /// Вывести в консоль значение переменной
         /// </summary>

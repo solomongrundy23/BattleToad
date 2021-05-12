@@ -785,7 +785,8 @@ namespace BattleToad
             private readonly string _One;
             private readonly string _Two;
             private readonly string _Many;
-            public string ToString(int count = 0)
+            public string ToString(int count = 0) => $"{count} {GetText()}";
+            public string GetText(int count = 0)
             {
                 if (count >= 10 && count < 20) return _Many;
                 char last = count.ToString().Last();
@@ -804,7 +805,7 @@ namespace BattleToad
                     case '8':
                     case '9':
                         return _Many;
-                    default: return count.ToString();
+                    default: return "";
                 }
             }
         }
