@@ -40,6 +40,8 @@ namespace BattleToad.Strings
     /// </summary>
     public class Strings : List<string>
     {
+        public string ToString(string spliter) => string.Join(spliter, this);
+        public override string ToString() => ToString(Environment.NewLine);
         /// <summary>
         /// Создать экземпляр Strings
         /// </summary>
@@ -230,70 +232,6 @@ namespace BattleToad.Strings
             {
                 throw new Exception($"Ошибка сохранения файла: {ex.Message}");
             }
-        }
-
-        public static Strings operator +(Strings a, IEnumerable<string> b)
-        {
-            Strings result = new Strings();
-            result.AddRange(a);
-            result.AddRange(b);
-            return result;
-        }
-        public static Strings operator -(Strings a, IEnumerable<string> b)
-        {
-            Strings result = new Strings();
-            result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
-            return result;
-        }
-        public static Strings operator +(Strings a, Strings b)
-        {
-            Strings result = new Strings();
-            result.AddRange(a);
-            result.AddRange(b);
-            return result;
-        }
-        public static Strings operator +(Strings a, string[] b)
-        {
-            Strings result = new Strings();
-            result.AddRange(a);
-            result.AddRange(b);
-            return result;
-        }
-        public static Strings operator +(Strings a, List<string> b)
-        {
-            Strings result = new Strings();
-            result.AddRange(a);
-            result.AddRange(b);
-            return result;
-        }
-        public static Strings operator +(Strings a, string b)
-        {
-            Strings result = new Strings();
-            result.AddRange(a);
-            result.Add(b);
-            return result;
-        }
-        public static Strings operator -(Strings a, Strings b)
-        {
-            var result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
-            return result;
-        }
-        public static Strings operator -(Strings a, string[] b)
-        {
-            var result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
-            return result;
-        }
-        public static Strings operator -(Strings a, List<string> b)
-        {
-            var result = a.Where(x => !b.Contains(x)).ToArray().ToStrings();
-            return result;
-        }
-        public static Strings operator -(Strings a, string b)
-        {
-            Strings result = new Strings();
-            result.AddRange(a);
-            result.Remove(b);
-            return result;
         }
     }
 }

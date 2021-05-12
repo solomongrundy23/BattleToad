@@ -10,7 +10,18 @@ namespace BattleToad.Extensions
     /// Расширения для различных классов
     /// </summary>
     public static class Extensions
-    {
+    {        /// <summary>
+             /// Вывести в консоль значение переменной
+             /// </summary>
+             /// <typeparam name="T"></typeparam>
+             /// <param name="obj"></param>
+        public static void ConsoleWrite<T>(this T obj) => Console.Write(obj);
+        /// <summary>
+        /// Вывести в консоль значение переменной с переходом на новую строку
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static void ConsoleWriteLine<T>(this T obj) => Console.WriteLine(obj);
+
         public static string RemoveText(this string str, string text) => str.Replace(text, "");
         public static string RemoveTextStartEnd(this string str, string text) => str.RemoveTextStart(text).RemoveTextEnd(text);
         public static string RemoveTextStart(this string str, string text) => str.StartsWith(text) ? str.Substring(text.Length) : text;

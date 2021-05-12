@@ -6,17 +6,6 @@ namespace BattleToad.ConsoleAddons
     public static class ConsoleEx
     {
         /// <summary>
-        /// Вывести в консоль значение переменной
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="obj"></param>
-        public static void ConsoleWrite<T>(this T obj) => Console.Write(obj);
-        /// <summary>
-        /// Вывести в консоль значение переменной с переходом на новую строку
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        public static void ConsoleWriteLine<T>(this T obj) => Console.WriteLine(obj);
-        /// <summary>
         /// Вывести текст и считать переменную из консоли
         /// </summary>
         /// <param name="label">текст</param>
