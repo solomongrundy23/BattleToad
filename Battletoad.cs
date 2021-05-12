@@ -782,9 +782,9 @@ namespace BattleToad
                 _Two = two;
                 _Many = many;
             }
-            private string _One;
-            private string _Two;
-            private string _Many;
+            private readonly string _One;
+            private readonly string _Two;
+            private readonly string _Many;
             public string ToString(int count = 0)
             {
                 if (count >= 10 && count < 20) return _Many;

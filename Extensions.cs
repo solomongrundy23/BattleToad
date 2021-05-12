@@ -10,11 +10,13 @@ namespace BattleToad.Extensions
     /// Расширения для различных классов
     /// </summary>
     public static class Extensions
-    {        /// <summary>
-             /// Вывести в консоль значение переменной
-             /// </summary>
-             /// <typeparam name="T"></typeparam>
-             /// <param name="obj"></param>
+    {
+        public static string ToQuantitativelyText(this int count, OneToFirst.Quantitatively quantitatively) => $"{count} {quantitatively.ToString(count)}";
+        /// <summary>
+        /// Вывести в консоль значение переменной
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
         public static void ConsoleWrite<T>(this T obj) => Console.Write(obj);
         /// <summary>
         /// Вывести в консоль значение переменной с переходом на новую строку
